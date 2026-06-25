@@ -57,8 +57,8 @@ export default function LoginPage() {
         >
           
           <div className="flex flex-col items-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-status-info)] rounded-2xl flex items-center justify-center shadow-lg shadow-[var(--color-primary)]/20 mb-6">
-              <Brain className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 flex items-center justify-center mb-6">
+              <Image src="/logo.svg" alt="Priora Logo" width={64} height={64} className="w-full h-full drop-shadow-md" />
             </div>
             <h1 className="text-3xl font-heading text-[var(--color-text-heading)] mb-2">Welcome Back</h1>
             <p className="text-[var(--color-text-secondary)] text-center">

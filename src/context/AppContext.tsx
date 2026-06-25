@@ -102,7 +102,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addTask = async (task: Task) => {
     setTasks([task, ...tasks]); // Optimistic UI update
     if (isDbConnected() && supabase) {
-      await supabase!.from('tasks').insert([task]);
+      await supabase!.from('tasks').insert([{ ...task, user_id: user?.id }]);
     }
   };
   
@@ -132,7 +132,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addHabit = async (habit: Habit) => {
     setHabits([...habits, habit]);
     if (isDbConnected() && supabase) {
-      await supabase!.from('habits').insert([habit]);
+      await supabase!.from('habits').insert([{ ...habit, user_id: user?.id }]);
     }
   };
   
