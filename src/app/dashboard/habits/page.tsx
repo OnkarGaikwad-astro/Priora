@@ -1,11 +1,11 @@
 "use client";
 
-import { Check, Flame, Activity, Plus } from "lucide-react";
+import { Check, Flame, Activity, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useAppContext } from "@/context/AppContext";
 
 export default function HabitsPage() {
-  const { habits, addHabit, toggleHabitDay } = useAppContext();
+  const { habits, addHabit, toggleHabitDay, deleteHabit } = useAppContext();
   const [newHabitName, setNewHabitName] = useState("");
 
   const daysOfWeek = ["M", "T", "W", "T", "F", "S", "S"];
@@ -77,7 +77,7 @@ export default function HabitsPage() {
                 </div>
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex gap-4 items-center">
                 {habit.days.map((isDone, i) => (
                   <button 
                     key={i} 
@@ -87,6 +87,9 @@ export default function HabitsPage() {
                     <Check className={`w-5 h-5 ${isDone ? 'opacity-100' : 'opacity-0 group-hover:opacity-30'}`} />
                   </button>
                 ))}
+                <button onClick={() => deleteHabit(habit.id)} className="ml-4 opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-text-muted)] hover:text-[var(--color-status-danger)]">
+                  <Trash2 className="w-5 h-5" />
+                </button>
               </div>
             </div>
           ))}

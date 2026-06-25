@@ -190,7 +190,8 @@ export default function CalendarPage() {
       </header>
 
       {/* Full Month Grid */}
-      <div className="flex-1 flex flex-col bg-[var(--color-cream)]/50 rounded-[var(--radius-skeuo)] p-6 shadow-[var(--shadow-skeuo)] border border-white/30 overflow-hidden">
+      <div className="flex-1 flex flex-col bg-[var(--color-bg-card)]/40 backdrop-blur-2xl rounded-3xl p-6 md:p-8 shadow-[inset_0_2px_20px_rgba(255,255,255,0.4),var(--shadow-skeuo)] border border-white/50 overflow-hidden relative">
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/5 via-transparent to-[var(--color-cadet-blue)]/10 pointer-events-none"></div>
         
         {/* Days of Week Header */}
         <div className="grid grid-cols-7 mb-4">
@@ -202,10 +203,10 @@ export default function CalendarPage() {
         </div>
 
         {/* Calendar Cells */}
-        <div className="flex-1 grid grid-cols-7 gap-3 auto-rows-fr">
+        <div className="flex-1 grid grid-cols-7 gap-3 md:gap-4 auto-rows-fr relative z-10">
           {/* Leading padding */}
           {paddingDays.map(p => (
-            <div key={`pad-start-${p}`} className="rounded-2xl bg-[var(--color-bg-main)]/20 border border-[var(--color-primary)]/5 opacity-50"></div>
+            <div key={`pad-start-${p}`} className="rounded-3xl bg-[var(--color-primary)]/5 border border-dashed border-[var(--color-primary)]/15 opacity-60"></div>
           ))}
 
           {/* Actual Month Days */}
@@ -218,19 +219,31 @@ export default function CalendarPage() {
               <button 
                 key={day} 
                 onClick={() => handleDayClick(day)}
-                className={`relative flex flex-col p-2 min-h-[80px] md:min-h-[120px] items-start justify-start rounded-2xl transition-all duration-300 text-left hover:-translate-y-1 ${isToday ? 'bg-[var(--color-cream)] border-2 border-[var(--color-primary)]/30 shadow-[var(--shadow-skeuo)]' : 'bg-[var(--color-bg-card)]/80 backdrop-blur-sm shadow-[var(--shadow-skeuo-inset)] hover:shadow-md border border-[var(--color-primary)]/10'}`}
+                className={`relative flex flex-col p-3 min-h-[100px] md:min-h-[140px] items-start justify-start rounded-3xl transition-all duration-150 ease-out text-left overflow-hidden group ${isToday ? 'bg-[var(--color-cream)] border-2 border-[var(--color-primary)]/40 shadow-[var(--shadow-skeuo),0_4px_20px_rgba(var(--color-primary-rgb),0.15)] scale-[1.02] z-20' : 'bg-[var(--color-bg-card)] shadow-sm border border-[var(--color-primary)]/10 hover:bg-white hover:shadow-[var(--shadow-skeuo)] hover:-translate-y-1 hover:border-[var(--color-primary)]/30'}`}
               >
-                <span className={`text-sm font-semibold mb-1 ml-1 ${isToday ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-primary)]'}`}>
-                  {day}
-                </span>
+                <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                
+                <div className={`flex items-center justify-center w-8 h-8 rounded-full mb-2 ml-1 relative z-10 transition-colors ${isToday ? 'bg-[var(--color-primary)] text-white shadow-md' : 'text-[var(--color-text-primary)] group-hover:bg-[var(--color-primary)]/10'}`}>
+                  <span className={`text-sm ${isToday ? 'font-bold' : 'font-semibold'}`}>
+                    {day}
+                  </span>
+                </div>
 
                 {/* Task Indicators */}
-                <div className="flex flex-col gap-1 w-full mt-1 overflow-y-auto max-h-[80px] no-scrollbar">
-                  {dayTasks.map((t, idx) => (
-                    <div key={idx} className={`text-[10px] truncate px-1.5 py-0.5 rounded-md font-medium text-white shadow-sm ${t.status === 'done' ? 'bg-[var(--color-status-success)]/80 line-through' : t.isCritical ? 'bg-[var(--color-status-danger)]' : 'bg-[var(--color-primary)]'}`}>
-                      {t.title}
-                    </div>
-                  ))}
+                <div className="flex flex-col gap-1.5 w-full mt-1 overflow-y-auto max-h-[80px] no-scrollbar relative z-10">
+                  {dayTasks.map((t, idx) => {
+                    let chipColor = 'bg-blue-500/90 text-white';
+                    if (t.status === 'done') chipColor = 'bg-[var(--color-bg-main)] text-[var(--color-text-muted)] line-through border border-[var(--color-primary)]/10';
+                    else if (t.priority === 'High') chipColor = 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-md shadow-red-500/20';
+                    else if (t.priority === 'Medium') chipColor = 'bg-gradient-to-r from-[#C7DDEB] to-[#D7CCC8] text-slate-800 shadow-md shadow-[#C7DDEB]/30';
+                    else chipColor = 'bg-gradient-to-r from-[var(--color-primary)] to-emerald-500 text-white shadow-md shadow-[var(--color-primary)]/20';
+
+                    return (
+                      <div key={idx} className={`text-[10px] truncate px-2 py-1 rounded-md font-medium ${chipColor}`}>
+                        {t.title}
+                      </div>
+                    );
+                  })}
                 </div>
               </button>
             );
@@ -238,7 +251,7 @@ export default function CalendarPage() {
 
           {/* Trailing padding */}
           {trailingPaddingDays.map(p => (
-            <div key={`pad-end-${p}`} className="rounded-2xl bg-[var(--color-bg-main)]/20 border border-[var(--color-primary)]/5 opacity-50"></div>
+            <div key={`pad-end-${p}`} className="rounded-3xl bg-[var(--color-primary)]/5 border border-dashed border-[var(--color-primary)]/15 opacity-60"></div>
           ))}
         </div>
 

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Brain, Target, ShieldAlert, CheckCircle2, Circle, X, Loader2, Calendar, Edit2, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useAppContext, Task } from "@/context/AppContext";
+import { formatDeadline } from "@/lib/utils";
 
 export default function DashboardPage() {
   const { tasks, addTask, toggleTaskStatus, editTask, deleteTask } = useAppContext();
@@ -341,11 +342,16 @@ export default function DashboardPage() {
                       <span className={`text-xs px-2 py-0.5 rounded-full bg-[var(--color-bg-elevated)] shadow-[var(--shadow-skeuo-inset)] text-[var(--color-text-muted)]`}>
                         {task.category}
                       </span>
-                      {task.deadline && (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--color-status-danger)]/10 text-[var(--color-status-danger)] font-medium flex items-center gap-1">
-                          <Calendar className="w-3 h-3" /> Due: {task.deadline}
-                        </span>
-                      )}
+                      {task.deadline && (() => {
+                        const dInfo = formatDeadline(task.deadline);
+                        if (!dInfo) return null;
+                        const color = dInfo.isOverdue ? 'text-red-500 bg-red-500/10' : dInfo.isUrgent ? 'text-[var(--color-status-warning)] bg-[var(--color-status-warning)]/10' : 'text-[var(--color-text-secondary)] bg-[var(--color-bg-main)]';
+                        return (
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex items-center gap-1 ${color}`}>
+                            <Calendar className="w-3 h-3" /> Due: {dInfo.text}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>

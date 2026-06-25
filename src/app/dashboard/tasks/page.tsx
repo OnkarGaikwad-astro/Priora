@@ -3,6 +3,7 @@
 import { Plus, MoreHorizontal, Circle, CheckCircle2, Clock, X, Calendar, Edit2, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useAppContext, Task } from "@/context/AppContext";
+import { formatDeadline } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function TasksPage() {
@@ -203,13 +204,19 @@ export default function TasksPage() {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                   <span className="text-xs px-2 py-1 rounded-full bg-[var(--color-bg-main)] text-[var(--color-text-secondary)] shadow-[var(--shadow-skeuo-inset)]">{task.category}</span>
-                  {task.deadline && <span className="text-[10px] flex items-center gap-1 font-medium text-[var(--color-status-danger)] bg-[var(--color-status-danger)]/10 px-2 py-1 rounded-full"><Calendar className="w-3 h-3" /> {task.deadline}</span>}
+                  {task.deadline && (() => {
+                    const dInfo = formatDeadline(task.deadline);
+                    if (!dInfo) return null;
+                    const color = dInfo.isOverdue ? 'text-red-500 bg-red-500/10' : dInfo.isUrgent ? 'text-[var(--color-status-warning)] bg-[var(--color-status-warning)]/10' : 'text-[var(--color-text-secondary)] bg-[var(--color-bg-main)] shadow-[var(--shadow-skeuo-inset)]';
+                    return <span className={`text-[10px] flex items-center gap-1 font-medium px-2 py-1 rounded-full ${color}`}><Calendar className="w-3 h-3" /> {dInfo.text}</span>;
+                  })()}
                 </div>
-                <span className={`text-xs font-medium ${task.priority === 'High' ? 'text-[var(--color-status-danger)]' : 'text-[var(--color-text-muted)]'}`}>{task.priority}</span>
+                <span className={`text-xs font-medium transition-opacity group-hover:opacity-0 ${task.priority === 'High' ? 'text-[var(--color-status-danger)]' : 'text-[var(--color-text-muted)]'}`}>{task.priority}</span>
               </div>
-              <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                <button onClick={() => setEditingTask(task)} className="text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"><Edit2 className="w-4 h-4" /></button>
-                <button onClick={() => deleteTask(task.id)} className="text-[var(--color-text-muted)] hover:text-[var(--color-status-danger)]"><Trash2 className="w-4 h-4" /></button>
+              <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 bg-[var(--color-cream)]/95 backdrop-blur-md px-3 py-2 rounded-xl shadow-[var(--shadow-skeuo)] border border-white/50 z-10">
+                <button onClick={() => setEditingTask(task)} className="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors"><Edit2 className="w-4 h-4" /></button>
+                <div className="w-px h-4 bg-[var(--color-primary)]/10"></div>
+                <button onClick={() => deleteTask(task.id)} className="text-[var(--color-text-muted)] hover:text-[var(--color-status-danger)] transition-colors"><Trash2 className="w-4 h-4" /></button>
               </div>
             </div>
           ))}
@@ -231,13 +238,19 @@ export default function TasksPage() {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-2">
                   <span className="text-xs px-2 py-1 rounded-full bg-[var(--color-bg-main)] text-[var(--color-text-secondary)] shadow-[var(--shadow-skeuo-inset)]">{task.category}</span>
-                  {task.deadline && <span className="text-[10px] flex items-center gap-1 font-medium text-[var(--color-status-danger)] bg-[var(--color-status-danger)]/10 px-2 py-1 rounded-full"><Calendar className="w-3 h-3" /> {task.deadline}</span>}
+                  {task.deadline && (() => {
+                    const dInfo = formatDeadline(task.deadline);
+                    if (!dInfo) return null;
+                    const color = dInfo.isOverdue ? 'text-red-500 bg-red-500/10' : dInfo.isUrgent ? 'text-[var(--color-status-warning)] bg-[var(--color-status-warning)]/10' : 'text-[var(--color-text-secondary)] bg-[var(--color-bg-main)] shadow-[var(--shadow-skeuo-inset)]';
+                    return <span className={`text-[10px] flex items-center gap-1 font-medium px-2 py-1 rounded-full ${color}`}><Calendar className="w-3 h-3" /> {dInfo.text}</span>;
+                  })()}
                 </div>
-                <span className="text-xs font-medium text-[var(--color-text-muted)]">{task.priority}</span>
+                <span className="text-xs font-medium text-[var(--color-text-muted)] transition-opacity group-hover:opacity-0">{task.priority}</span>
               </div>
-              <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2">
-                <button onClick={() => setEditingTask(task)} className="text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"><Edit2 className="w-4 h-4" /></button>
-                <button onClick={() => deleteTask(task.id)} className="text-[var(--color-text-muted)] hover:text-[var(--color-status-danger)]"><Trash2 className="w-4 h-4" /></button>
+              <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 bg-[var(--color-cream)]/95 backdrop-blur-md px-3 py-2 rounded-xl shadow-[var(--shadow-skeuo)] border border-white/50 z-10">
+                <button onClick={() => setEditingTask(task)} className="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors"><Edit2 className="w-4 h-4" /></button>
+                <div className="w-px h-4 bg-[var(--color-primary)]/10"></div>
+                <button onClick={() => deleteTask(task.id)} className="text-[var(--color-text-muted)] hover:text-[var(--color-status-danger)] transition-colors"><Trash2 className="w-4 h-4" /></button>
               </div>
             </div>
           ))}

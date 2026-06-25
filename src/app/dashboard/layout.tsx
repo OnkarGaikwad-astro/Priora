@@ -16,7 +16,7 @@ import {
   ArrowRight,
   Menu,
   X,
-  Bot
+  BrainCircuit
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -162,9 +162,20 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="px-4 flex flex-col gap-2">
-          <Link href="/dashboard/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-2xl text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-surface)] hover:text-[var(--color-text-primary)] transition-colors">
+          <Link 
+            href="/dashboard/settings" 
+            onClick={() => setIsMobileMenuOpen(false)} 
+            className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 relative group
+              ${pathname === '/dashboard/settings' ? "text-[var(--color-text-primary)] font-semibold bg-[var(--color-cream)]/60 backdrop-blur-md shadow-[8px_8px_20px_rgba(0,0,0,0.15),-8px_-8px_20px_rgba(255,255,255,0.9)]" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-cadet-blue)]/10 hover:text-[var(--color-text-primary)]"}`}
+          >
             <Settings className="w-5 h-5" />
             <span>Settings</span>
+            {pathname === '/dashboard/settings' && (
+              <motion.div
+                layoutId="sidebar-active"
+                className="absolute inset-0 rounded-2xl bg-[var(--color-primary)]/10 pointer-events-none"
+              />
+            )}
           </Link>
           <div className="flex items-center gap-3 px-4 py-3 mt-2 border-t border-[var(--color-text-muted)]/10">
             <div className="w-8 h-8 rounded-full bg-[var(--color-bg-elevated)] flex items-center justify-center shadow-[var(--shadow-skeuo-inset)]">
@@ -188,7 +199,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         onClick={() => setIsAiOpen(!isAiOpen)}
         className="fixed bottom-6 md:bottom-8 right-6 md:right-8 w-14 h-14 bg-[var(--color-primary)] rounded-full shadow-[var(--shadow-skeuo)] hover:shadow-[var(--shadow-skeuo-hover)] active:shadow-[var(--shadow-skeuo-inset)] flex items-center justify-center text-[var(--color-accent)] z-[60] transition-all hover:-translate-y-1"
       >
-        <Bot className="w-6 h-6" />
+        <BrainCircuit className="w-6 h-6" />
       </button>
 
       {/* Floating AI Assistant Panel */}
@@ -205,7 +216,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 <X className="w-5 h-5" />
               </button>
               <div className="flex items-center gap-2 mb-1">
-                <Bot className="w-5 h-5 text-[var(--color-primary)]" />
+                <BrainCircuit className="w-5 h-5 text-[var(--color-primary)]" />
                 <h3 className="font-heading text-lg font-medium text-[var(--color-text-heading)]">Priora AI</h3>
               </div>
               <p className="text-xs text-[var(--color-text-muted)]">Active • Context Aware</p>
@@ -275,7 +286,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
             <div className="p-4 bg-[var(--color-bg-sidebar)] shrink-0">
               <div className="bg-[var(--color-bg-elevated)] rounded-full px-4 py-3 shadow-[var(--shadow-skeuo-inset)] flex items-center gap-2">
-                <Bot className="w-4 h-4 text-[var(--color-primary)] shrink-0" />
+                <BrainCircuit className="w-4 h-4 text-[var(--color-primary)] shrink-0" />
                 <input
                   type="text"
                   placeholder="Ask Priora anything... (Press Enter)"

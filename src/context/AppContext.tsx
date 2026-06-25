@@ -32,6 +32,7 @@ type AppContextType = {
   habits: Habit[];
   addHabit: (habit: Habit) => void;
   toggleHabitDay: (habitId: number, dayIndex: number) => void;
+  deleteHabit: (id: number) => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -116,10 +117,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const deleteHabit = async (id: number) => {
+    setHabits(habits.filter(h => h.id !== id));
+    if (isDbConnected() && supabase) {
+      await supabase.from('habits').delete().eq('id', id);
+    }
+  };
+
   return (
     <AppContext.Provider value={{
       tasks, addTask, editTask, toggleTaskStatus, deleteTask,
-      habits, addHabit, toggleHabitDay
+      habits, addHabit, toggleHabitDay, deleteHabit
     }}>
       {children}
     </AppContext.Provider>

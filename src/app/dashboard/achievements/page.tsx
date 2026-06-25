@@ -2,14 +2,23 @@
 
 import { Trophy, Star, Target, Zap, Clock, ShieldCheck, Lock } from "lucide-react";
 
+import { useAppContext } from "@/context/AppContext";
+
 export default function AchievementsPage() {
+  const { tasks, habits } = useAppContext();
+
+  const completedTasksCount = tasks.filter(t => t.status === 'done').length;
+  const totalHabitStreak = habits.reduce((acc, curr) => acc + curr.streak, 0);
+
+  const totalScore = (completedTasksCount * 50) + (totalHabitStreak * 100);
+
   const achievements = [
-    { id: 1, title: "Early Bird", desc: "Complete a task before 8 AM", icon: Clock, unlocked: true, color: "text-[var(--color-status-warning)]", bg: "bg-[var(--color-status-warning)]/10" },
-    { id: 2, title: "Deep Work Master", desc: "Log 20 hours of Focus Mode", icon: Target, unlocked: true, color: "text-[var(--color-status-danger)]", bg: "bg-[var(--color-status-danger)]/10" },
-    { id: 3, title: "Streak Master", desc: "Achieve a 30-day habit streak", icon: Flame, unlocked: false, color: "text-[var(--color-text-muted)]", bg: "bg-[var(--color-bg-main)]" },
-    { id: 4, title: "AI Strategist", desc: "Generate 50 AI Plans", icon: Zap, unlocked: true, color: "text-[var(--color-primary)]", bg: "bg-[var(--color-primary)]/10" },
-    { id: 5, title: "Deadline Savior", desc: "Rescue 5 overdue tasks", icon: ShieldCheck, unlocked: true, color: "text-[var(--color-status-success)]", bg: "bg-[var(--color-status-success)]/10" },
-    { id: 6, title: "Perfectionist", desc: "Complete all weekly tasks", icon: Star, unlocked: false, color: "text-[var(--color-text-muted)]", bg: "bg-[var(--color-bg-main)]" },
+    { id: 1, title: "Productivity Rookie", desc: "Complete your first task", icon: Clock, unlocked: completedTasksCount >= 1, color: "text-[var(--color-status-warning)]", bg: "bg-[var(--color-status-warning)]/10" },
+    { id: 2, title: "Task Master", desc: "Complete 5 tasks", icon: Target, unlocked: completedTasksCount >= 5, color: "text-[var(--color-status-danger)]", bg: "bg-[var(--color-status-danger)]/10" },
+    { id: 3, title: "Habit Builder", desc: "Achieve a 5-day habit streak", icon: Flame, unlocked: totalHabitStreak >= 5, color: "text-[var(--color-status-success)]", bg: "bg-[var(--color-status-success)]/10" },
+    { id: 4, title: "AI Strategist", desc: "Use the AI Planner (Mock)", icon: Zap, unlocked: true, color: "text-[var(--color-primary)]", bg: "bg-[var(--color-primary)]/10" },
+    { id: 5, title: "Consistency", desc: "Achieve a 20-day habit streak", icon: ShieldCheck, unlocked: totalHabitStreak >= 20, color: "text-purple-500", bg: "bg-purple-500/10" },
+    { id: 6, title: "Perfectionist", desc: "Complete 20 tasks", icon: Star, unlocked: completedTasksCount >= 20, color: "text-blue-500", bg: "bg-blue-500/10" },
   ];
 
   return (
@@ -23,7 +32,7 @@ export default function AchievementsPage() {
           <Trophy className="w-8 h-8 text-[var(--color-status-warning)]" />
           <div className="flex flex-col">
             <span className="text-xs font-medium text-[var(--color-text-secondary)] uppercase">Total Score</span>
-            <span className="text-xl font-heading text-[var(--color-text-primary)]">2,450 XP</span>
+            <span className="text-xl font-heading text-[var(--color-text-primary)]">{totalScore} XP</span>
           </div>
         </div>
       </header>
