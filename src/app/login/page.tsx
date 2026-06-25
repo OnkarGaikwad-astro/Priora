@@ -53,7 +53,7 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-md bg-[var(--color-cream)]/80 backdrop-blur-2xl rounded-3xl p-8 md:p-10 shadow-[var(--shadow-skeuo)] border border-white/50"
+          className="w-full max-w-md bg-[var(--color-primary)]/20 backdrop-blur-3xl rounded-3xl p-8 md:p-10 shadow-[0_8px_32px_rgba(0,0,0,0.1)] border-2 border-black/20"
         >
           
           <div className="flex flex-col items-center mb-8">
@@ -76,7 +76,7 @@ export default function LoginPage() {
             <button
               onClick={handleGoogleLogin}
               disabled={isLoading}
-              className="group relative w-full flex items-center justify-center gap-3 px-6 py-4 bg-[var(--color-bg-card)] text-[var(--color-text-primary)] font-medium rounded-2xl shadow-[var(--shadow-skeuo)] hover:shadow-[var(--shadow-skeuo-hover)] transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-1 active:translate-y-0"
+              className="group relative w-full flex items-center justify-center gap-3 px-6 py-4 bg-[var(--color-bg-card)] text-[var(--color-text-primary)] font-medium rounded-2xl shadow-[var(--shadow-skeuo)] border border-black/10 hover:border-black/20 hover:shadow-[var(--shadow-skeuo-hover)] transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-1 active:translate-y-0"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin text-[var(--color-text-secondary)]" />

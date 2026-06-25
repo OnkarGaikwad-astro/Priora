@@ -22,9 +22,6 @@ export default function LandingPage() {
           <Link href="#analytics" className="hover:text-[var(--color-primary)] transition-colors">Analytics</Link>
         </div>
         <div className="flex items-center gap-4">
-          <Link href="/login" className="text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] transition-colors font-medium">
-            Login
-          </Link>
           <Link 
             href="/dashboard"
             className="px-6 py-2.5 rounded-full bg-[var(--color-primary)] text-[var(--color-accent)] font-medium shadow-[var(--shadow-skeuo)] hover:shadow-[var(--shadow-skeuo-hover)] transition-all hover:-translate-y-0.5 active:translate-y-0"
