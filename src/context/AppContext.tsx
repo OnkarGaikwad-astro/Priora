@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase, isDbConnected } from "@/lib/supabase";
+import { User } from "@supabase/supabase-js";
 
 export type Task = {
   id: number;
@@ -33,6 +34,9 @@ type AppContextType = {
   addHabit: (habit: Habit) => void;
   toggleHabitDay: (habitId: number, dayIndex: number) => void;
   deleteHabit: (id: number) => void;
+  
+  user: User | null;
+  isLoading: boolean;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -40,25 +44,58 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // 1. READ (Fetch from DB on mount)
   useEffect(() => {
+    let subscription: any = null;
+
     if (isDbConnected() && supabase) {
-      const fetchData = async () => {
+      // Set initial user
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setUser(session?.user ?? null);
+        setIsLoading(false);
+        if (session?.user) {
+          fetchData(session.user.id);
+        }
+      });
+
+      // Listen for auth changes
+      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null);
+        setIsLoading(false);
+        if (session?.user) {
+          fetchData(session.user.id);
+        } else {
+          setTasks([]);
+          setHabits([]);
+        }
+      });
+      subscription = authListener.subscription;
+
+      const fetchData = async (userId: string) => {
         try {
+          // If you enable RLS, Supabase handles filtering by user automatically based on the session token.
+          // But to be safe, we can add .eq('user_id', userId) if you have that column.
+          // We will rely on RLS or fetch all for now depending on DB schema.
           const { data: tasksData, error: tasksError } = await supabase!.from('tasks').select('*');
           if (!tasksError && tasksData) setTasks(tasksData);
 
           const { data: habitsData, error: habitsError } = await supabase!.from('habits').select('*');
           if (!habitsError && habitsData) setHabits(habitsData);
         } catch (err) {
-          console.error("Supabase fetch failed, falling back to local state.", err);
+          console.error("Supabase fetch failed.", err);
         }
       };
-      fetchData();
     } else {
       console.warn("Priora: Running in Local Mock Mode. Add Supabase keys to .env.local for Database Mode.");
+      setIsLoading(false);
     }
+
+    return () => {
+      if (subscription) subscription.unsubscribe();
+    };
   }, []);
 
   // 2. CREATE
@@ -123,9 +160,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AppContext.Provider value={{
+    <AppContext.Provider value={{ 
       tasks, addTask, editTask, toggleTaskStatus, deleteTask,
-      habits, addHabit, toggleHabitDay, deleteHabit
+      habits, addHabit, toggleHabitDay, deleteHabit,
+      user, isLoading
     }}>
       {children}
     </AppContext.Provider>

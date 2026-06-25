@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -20,8 +20,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AppProvider, useAppContext } from "@/context/AppContext";
+import { supabase, isDbConnected } from "@/lib/supabase";
+import { Loader2, LogOut } from "lucide-react";
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -35,7 +37,8 @@ const NAV_ITEMS = [
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { tasks, addTask } = useAppContext();
+  const router = useRouter();
+  const { tasks, addTask, user, isLoading } = useAppContext();
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
@@ -43,6 +46,13 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [aiInput, setAiInput] = useState("");
   const [chatMessages, setChatMessages] = useState<{role: 'user'|'ai', text: string}[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+
+  // Auth Guard
+  useEffect(() => {
+    if (isDbConnected() && !isLoading && !user) {
+      router.push("/login");
+    }
+  }, [user, isLoading, router]);
 
   // Dynamic AI Data
   const highPriorityTasks = tasks.filter(t => t.priority === "High" && t.status !== "done");
@@ -91,6 +101,27 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       }
     }
   };
+
+  const handleLogout = async () => {
+    if (isDbConnected() && supabase) {
+      await supabase.auth.signOut();
+      router.push("/login");
+    }
+  };
+
+  if (isDbConnected() && isLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--color-bg-main)] flex flex-col items-center justify-center">
+        <Loader2 className="w-10 h-10 animate-spin text-[var(--color-primary)] mb-4" />
+        <p className="text-[var(--color-text-muted)]">Authenticating...</p>
+      </div>
+    );
+  }
+
+  // If DB is connected and no user, we render nothing while useEffect redirects
+  if (isDbConnected() && !user) {
+    return null;
+  }
 
   return (
     <div className="flex h-screen bg-[var(--color-bg-main)] overflow-hidden font-sans relative">
@@ -177,14 +208,25 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               />
             )}
           </Link>
-          <div className="flex items-center gap-3 px-4 py-3 mt-2 border-t border-[var(--color-text-muted)]/10">
-            <div className="w-8 h-8 rounded-full bg-[var(--color-bg-elevated)] flex items-center justify-center shadow-[var(--shadow-skeuo-inset)]">
-              <User className="w-4 h-4 text-[var(--color-primary)]" />
+          <div className="flex items-center justify-between px-4 py-3 mt-2 border-t border-[var(--color-text-muted)]/10">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[var(--color-bg-elevated)] flex items-center justify-center shadow-[var(--shadow-skeuo-inset)] overflow-hidden">
+                {user?.user_metadata?.avatar_url ? (
+                  <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <User className="w-4 h-4 text-[var(--color-primary)]" />
+                )}
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-[var(--color-text-primary)] max-w-[100px] truncate">{user?.user_metadata?.full_name || 'Guest'}</span>
+                <span className="text-[10px] text-[var(--color-text-muted)] max-w-[100px] truncate">{user?.email || 'Local Mode'}</span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-[var(--color-text-primary)]">Alex</span>
-              <span className="text-xs text-[var(--color-text-muted)]">Pro Plan</span>
-            </div>
+            {isDbConnected() && user && (
+              <button onClick={handleLogout} className="text-[var(--color-text-muted)] hover:text-[var(--color-status-danger)] transition-colors p-1" title="Logout">
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
       </aside>
