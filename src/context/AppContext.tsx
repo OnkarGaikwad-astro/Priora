@@ -46,10 +46,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (isDbConnected() && supabase) {
       const fetchData = async () => {
         try {
-          const { data: tasksData, error: tasksError } = await supabase.from('tasks').select('*');
+          const { data: tasksData, error: tasksError } = await supabase!.from('tasks').select('*');
           if (!tasksError && tasksData) setTasks(tasksData);
 
-          const { data: habitsData, error: habitsError } = await supabase.from('habits').select('*');
+          const { data: habitsData, error: habitsError } = await supabase!.from('habits').select('*');
           if (!habitsError && habitsData) setHabits(habitsData);
         } catch (err) {
           console.error("Supabase fetch failed, falling back to local state.", err);
@@ -65,14 +65,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const addTask = async (task: Task) => {
     setTasks([task, ...tasks]); // Optimistic UI update
     if (isDbConnected() && supabase) {
-      await supabase.from('tasks').insert([task]);
+      await supabase!.from('tasks').insert([task]);
     }
   };
   
   const editTask = async (id: number, updatedTask: Partial<Task>) => {
     setTasks(tasks.map(t => t.id === id ? { ...t, ...updatedTask } : t));
     if (isDbConnected() && supabase) {
-      await supabase.from('tasks').update(updatedTask).eq('id', id);
+      await supabase!.from('tasks').update(updatedTask).eq('id', id);
     }
   };
   
@@ -80,7 +80,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const toggleTaskStatus = async (id: number, newStatus: Task["status"]) => {
     setTasks(tasks.map(t => t.id === id ? { ...t, status: newStatus } : t));
     if (isDbConnected() && supabase) {
-      await supabase.from('tasks').update({ status: newStatus }).eq('id', id);
+      await supabase!.from('tasks').update({ status: newStatus }).eq('id', id);
     }
   };
   
@@ -88,14 +88,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const deleteTask = async (id: number) => {
     setTasks(tasks.filter(t => t.id !== id));
     if (isDbConnected() && supabase) {
-      await supabase.from('tasks').delete().eq('id', id);
+      await supabase!.from('tasks').delete().eq('id', id);
     }
   };
 
   const addHabit = async (habit: Habit) => {
     setHabits([...habits, habit]);
     if (isDbConnected() && supabase) {
-      await supabase.from('habits').insert([habit]);
+      await supabase!.from('habits').insert([habit]);
     }
   };
   
@@ -113,14 +113,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }));
 
     if (isDbConnected() && supabase && updatedHabit) {
-      await supabase.from('habits').update({ days: updatedHabit.days, streak: updatedHabit.streak }).eq('id', habitId);
+      await supabase!.from('habits').update({ days: updatedHabit.days, streak: updatedHabit.streak }).eq('id', habitId);
     }
   };
 
   const deleteHabit = async (id: number) => {
     setHabits(habits.filter(h => h.id !== id));
     if (isDbConnected() && supabase) {
-      await supabase.from('habits').delete().eq('id', id);
+      await supabase!.from('habits').delete().eq('id', id);
     }
   };
 
