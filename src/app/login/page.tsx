@@ -37,8 +37,8 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[var(--color-bg-main)] flex flex-col relative overflow-hidden">
       
       {/* Abstract Background Blobs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[var(--color-primary)]/20 rounded-full blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-screen"></div>
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[var(--color-status-info)]/20 rounded-full blur-[120px] pointer-events-none mix-blend-multiply dark:mix-blend-screen"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[var(--color-primary)]/20 rounded-full blur-[120px] pointer-events-none mix-blend-multiply"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[var(--color-status-info)]/20 rounded-full blur-[120px] pointer-events-none mix-blend-multiply"></div>
 
       {/* Nav / Back Button */}
       <nav className="relative z-10 w-full px-8 py-6 flex items-center">
@@ -53,7 +53,7 @@ export default function LoginPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-md bg-[var(--color-cream)]/80 dark:bg-black/40 backdrop-blur-2xl rounded-3xl p-8 md:p-10 shadow-[var(--shadow-skeuo),0_20px_40px_rgba(0,0,0,0.1)] border border-white/50 dark:border-white/10"
+          className="w-full max-w-md bg-[var(--color-cream)]/80 backdrop-blur-2xl rounded-3xl p-8 md:p-10 shadow-[var(--shadow-skeuo)] border border-white/50"
         >
           
           <div className="flex flex-col items-center mb-8">
@@ -76,7 +76,7 @@ export default function LoginPage() {
             <button
               onClick={handleGoogleLogin}
               disabled={isLoading}
-              className="group relative w-full flex items-center justify-center gap-3 px-6 py-4 bg-white dark:bg-[#1A1A1A] text-[var(--color-text-primary)] font-medium rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 hover:shadow-md hover:border-gray-300 dark:hover:border-gray-700 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+              className="group relative w-full flex items-center justify-center gap-3 px-6 py-4 bg-[var(--color-bg-card)] text-[var(--color-text-primary)] font-medium rounded-2xl shadow-[var(--shadow-skeuo)] hover:shadow-[var(--shadow-skeuo-hover)] transition-all disabled:opacity-70 disabled:cursor-not-allowed hover:-translate-y-1 active:translate-y-0"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin text-[var(--color-text-secondary)]" />
