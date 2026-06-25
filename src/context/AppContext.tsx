@@ -100,19 +100,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
   
   const toggleHabitDay = async (habitId: number, dayIndex: number) => {
-    let updatedHabit: Habit | null = null;
-    setHabits(habits.map(h => {
-      if (h.id === habitId) {
-        const newDays = [...h.days];
-        newDays[dayIndex] = !newDays[dayIndex];
-        const streak = newDays.filter(Boolean).length;
-        updatedHabit = { ...h, days: newDays, streak };
-        return updatedHabit;
-      }
-      return h;
-    }));
+    const habitToUpdate = habits.find(h => h.id === habitId);
+    if (!habitToUpdate) return;
+    
+    const newDays = [...habitToUpdate.days];
+    newDays[dayIndex] = !newDays[dayIndex];
+    const streak = newDays.filter(Boolean).length;
+    const updatedHabit = { ...habitToUpdate, days: newDays, streak };
+    
+    setHabits(habits.map(h => h.id === habitId ? updatedHabit : h));
 
-    if (isDbConnected() && supabase && updatedHabit) {
+    if (isDbConnected() && supabase) {
       await supabase!.from('habits').update({ days: updatedHabit.days, streak: updatedHabit.streak }).eq('id', habitId);
     }
   };
