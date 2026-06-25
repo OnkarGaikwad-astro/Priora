@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Master Palette */
+  --color-cadet-blue: #6D9C9F;
+  --color-iced-mint: #F1F5E2;
+  --color-slate-gray: #4F6366; /* Replacing Old Lavender */
+  --color-cream: #FFFCD4;
+  --color-racing-red: #D63031;
+  --color-charcoal: #243336; /* Softened from the very harsh dark */
+
+  --color-primary: #8BB3B5; /* A lighter, airier shade of Cadet Blue for the primary button */
+  --color-accent: #2E3F42; /* Lighter, softer dark teal for button text */
+  
+  /* Background System */
+  --color-bg-main: var(--color-iced-mint);
+  --color-bg-secondary: var(--color-cream);
+  --color-bg-surface: var(--color-iced-mint);
+  --color-bg-sidebar: var(--color-cream);
+  --color-bg-card: var(--color-cream);
+  --color-bg-elevated: var(--color-cream);
+
+  /* Text System */
+  --color-text-primary: var(--color-charcoal);
+  --color-text-secondary: var(--color-slate-gray);
+  --color-text-muted: rgba(79, 99, 102, 0.7); /* Slate Gray at 70% opacity */
+  --color-text-heading: var(--color-charcoal);
+
+  /* Status Colors */
+  --color-status-success: var(--color-cadet-blue);
+  --color-status-warning: var(--color-racing-red);
+  --color-status-danger: var(--color-racing-red);
+  --color-status-info: var(--color-cadet-blue);
+
+  /* Skeuomorphic Variables */
+  --radius-skeuo: 24px;
+  --shadow-skeuo: 20px 20px 40px rgba(45, 40, 45, 0.18), -10px -10px 25px rgba(255, 255, 255, 0.9);
+  --shadow-skeuo-hover: 25px 25px 50px rgba(45, 40, 45, 0.28), -15px -15px 35px rgba(255, 255, 255, 1);
+  --shadow-skeuo-inset: inset 8px 8px 16px rgba(45, 40, 45, 0.12), inset -8px -8px 16px rgba(255, 255, 255, 0.8);
+
+  --font-sans: var(--font-dm-sans);
+  --font-heading: var(--font-playfair);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-bg-main);
+    color: var(--color-text-primary);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--color-text-heading);
+    font-family: var(--font-heading);
+  }
+}
