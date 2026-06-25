@@ -206,7 +206,7 @@ export default function CalendarPage() {
         <div className="flex-1 grid grid-cols-7 gap-3 md:gap-4 auto-rows-fr relative z-10">
           {/* Leading padding */}
           {paddingDays.map(p => (
-            <div key={`pad-start-${p}`} className="rounded-3xl bg-[var(--color-primary)]/5 border border-dashed border-[var(--color-primary)]/15 opacity-60"></div>
+            <div key={`pad-start-${p}`} className="rounded-3xl bg-[var(--color-primary)]/5 border border-dashed border-[var(--color-primary)]/15 opacity-60 min-h-0 h-full"></div>
           ))}
 
           {/* Actual Month Days */}
@@ -219,7 +219,7 @@ export default function CalendarPage() {
               <button 
                 key={day} 
                 onClick={() => handleDayClick(day)}
-                className={`relative flex flex-col p-3 min-h-[100px] md:min-h-[140px] items-start justify-start rounded-3xl transition-all duration-150 ease-out text-left overflow-hidden group ${isToday ? 'bg-[var(--color-cream)] border-2 border-[var(--color-primary)]/40 shadow-[var(--shadow-skeuo),0_4px_20px_rgba(var(--color-primary-rgb),0.15)] scale-[1.02] z-20' : 'bg-[var(--color-bg-card)] shadow-sm border border-[var(--color-primary)]/10 hover:bg-white hover:shadow-[var(--shadow-skeuo)] hover:-translate-y-1 hover:border-[var(--color-primary)]/30'}`}
+                className={`relative flex flex-col p-2 md:p-3 min-h-0 h-full items-start justify-start rounded-3xl transition-all duration-150 ease-out text-left overflow-hidden group ${isToday ? 'bg-[var(--color-cream)] border-2 border-[var(--color-primary)]/40 shadow-[var(--shadow-skeuo),0_4px_20px_rgba(var(--color-primary-rgb),0.15)] scale-[1.02] z-20' : 'bg-[var(--color-bg-card)] shadow-sm border border-[var(--color-primary)]/10 hover:bg-white hover:shadow-[var(--shadow-skeuo)] hover:-translate-y-1 hover:border-[var(--color-primary)]/30'}`}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 
@@ -251,7 +251,7 @@ export default function CalendarPage() {
 
           {/* Trailing padding */}
           {trailingPaddingDays.map(p => (
-            <div key={`pad-end-${p}`} className="rounded-3xl bg-[var(--color-primary)]/5 border border-dashed border-[var(--color-primary)]/15 opacity-60"></div>
+            <div key={`pad-end-${p}`} className="rounded-3xl bg-[var(--color-primary)]/5 border border-dashed border-[var(--color-primary)]/15 opacity-60 min-h-0 h-full"></div>
           ))}
         </div>
 
