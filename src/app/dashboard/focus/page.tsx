@@ -1,7 +1,7 @@
 "use client";
 
 import { Play, Pause, Square, RefreshCcw, Target, Focus as FocusIcon, Coffee, ChevronDown, CheckCircle2, PartyPopper } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAppContext } from "@/context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -13,6 +13,13 @@ export default function FocusPage() {
   const [showCompletionModal, setShowCompletionModal] = useState(false);
   const [completedMode, setCompletedMode] = useState<"focus" | "break">("focus");
   const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
+  const bgMusicRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (bgMusicRef.current) {
+      bgMusicRef.current.volume = 0.5;
+    }
+  }, []);
 
   // Keep local display in sync with global timer
   useEffect(() => {
@@ -32,6 +39,7 @@ export default function FocusPage() {
           if (focusState.mode === 'focus') {
              addFocusSeconds(focusState.remainingTime); // Add elapsed time for this segment
           }
+          if (bgMusicRef.current) bgMusicRef.current.pause();
           updateFocusState({ isActive: false, remainingTime: 0, endTime: null });
           setCompletedMode(focusState.mode);
           setShowCompletionModal(true);
@@ -78,6 +86,7 @@ export default function FocusPage() {
     if (focusState.isActive) {
       // Pause
       recordElapsedIfActive();
+      if (bgMusicRef.current) bgMusicRef.current.pause();
       updateFocusState({ 
         isActive: false, 
         remainingTime: localTimeLeft,
@@ -85,6 +94,9 @@ export default function FocusPage() {
       });
     } else {
       // Play / Resume
+      if (focusState.mode === 'focus' && bgMusicRef.current) {
+        bgMusicRef.current.play().catch(e => console.log("Background music play blocked by browser", e));
+      }
       if (localTimeLeft === 0) {
          const duration = focusState.mode === "focus" ? FOCUS_TIME : BREAK_TIME;
          updateFocusState({
@@ -104,6 +116,10 @@ export default function FocusPage() {
   
   const resetTimer = () => {
     recordElapsedIfActive();
+    if (bgMusicRef.current) {
+      bgMusicRef.current.pause();
+      bgMusicRef.current.currentTime = 0;
+    }
     const duration = focusState.mode === "focus" ? FOCUS_TIME : BREAK_TIME;
     updateFocusState({
       isActive: false,
@@ -114,6 +130,10 @@ export default function FocusPage() {
 
   const switchMode = (newMode: "focus" | "break") => {
     recordElapsedIfActive();
+    if (bgMusicRef.current) {
+      bgMusicRef.current.pause();
+      if (newMode === 'break') bgMusicRef.current.currentTime = 0;
+    }
     const duration = newMode === "focus" ? focusState.focusMinutes * 60 : focusState.breakMinutes * 60;
     updateFocusState({
       isActive: false,
@@ -129,6 +149,7 @@ export default function FocusPage() {
 
   return (
     <div className="flex flex-col gap-8 h-full items-center">
+      <audio ref={bgMusicRef} src="/music/LOTR.mp3" loop preload="auto" />
       {/* Completion Modal */}
       <AnimatePresence>
         {showCompletionModal && (

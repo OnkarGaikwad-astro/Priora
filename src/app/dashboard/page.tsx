@@ -460,7 +460,7 @@ export default function DashboardPage() {
                     }}
                     itemStyle={{ color: '#4A5D70' }}
                     labelFormatter={() => ""}
-                    formatter={(value: number) => [`${value}`, 'Score']}
+                    formatter={(value: any) => [`${value}`, 'Score']}
                   />
                 </LineChart>
               </ResponsiveContainer>
