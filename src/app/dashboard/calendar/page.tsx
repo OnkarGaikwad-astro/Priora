@@ -7,9 +7,9 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export default function CalendarPage() {
   const { tasks, addTask, toggleTaskStatus, deleteTask } = useAppContext();
-  
+
   const [currentDate, setCurrentDate] = useState(new Date());
-  
+
   // State for the Day Detail / Add Task Modal
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState("");
@@ -20,11 +20,11 @@ export default function CalendarPage() {
   // --- Calendar Math ---
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
-  
+
   const firstDayOfMonth = new Date(year, month, 1);
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const startingDayOfWeek = firstDayOfMonth.getDay(); // 0 (Sun) to 6 (Sat)
-  
+
   // Array of days for padding
   const paddingDays = Array.from({ length: startingDayOfWeek }, (_, i) => i);
   const monthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
@@ -54,11 +54,11 @@ export default function CalendarPage() {
   const handleAddTask = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTaskTitle.trim() || !selectedDay) return;
-    
+
     const formattedDateString = formatDateString(selectedDay.getFullYear(), selectedDay.getMonth(), selectedDay.getDate());
 
     const timeSuffix = newTaskTime ? `T${newTaskTime}` : "T17:00";
-    
+
     addTask({
       id: Date.now(),
       title: newTaskTitle,
@@ -69,7 +69,7 @@ export default function CalendarPage() {
       isCritical: newTaskPriority === "High",
       deadline: formattedDateString + timeSuffix
     });
-    
+
     setNewTaskTitle("");
     setNewTaskTime("");
   };
@@ -79,12 +79,12 @@ export default function CalendarPage() {
 
   return (
     <div className="flex flex-col gap-6 h-full w-full max-w-6xl mx-auto">
-      
+
       {/* Day Details / Add Task Modal */}
       <AnimatePresence>
         {selectedDay && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -93,7 +93,7 @@ export default function CalendarPage() {
               <button onClick={() => setSelectedDay(null)} className="absolute top-4 right-4 text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]">
                 <X className="w-5 h-5" />
               </button>
-              
+
               <div>
                 <h2 className="text-2xl font-heading text-[var(--color-text-heading)] mb-1">
                   {selectedDay.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
@@ -106,7 +106,7 @@ export default function CalendarPage() {
                 <h3 className="font-semibold text-sm text-[var(--color-text-primary)]">Tasks Due:</h3>
                 {tasksForSelectedDay.map(task => (
                   <div key={task.id} className={`flex items-center gap-3 p-3 rounded-xl border ${task.status === 'done' ? 'bg-[var(--color-bg-main)] opacity-60 border-[var(--color-status-success)]/20' : 'bg-[var(--color-bg-elevated)] border-[var(--color-primary)]/10 shadow-[var(--shadow-skeuo-inset)]'}`}>
-                    <button 
+                    <button
                       onClick={() => toggleTaskStatus(task.id, task.status === 'done' ? 'todo' : 'done')}
                       className={`transition-colors ${task.status === 'done' ? 'text-[var(--color-status-success)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-status-success)]'}`}
                     >
@@ -134,8 +134,8 @@ export default function CalendarPage() {
               <form onSubmit={handleAddTask} className="flex flex-col gap-4">
                 <h3 className="font-semibold text-sm text-[var(--color-text-primary)]">Add Task for this Date</h3>
                 <div>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl bg-[var(--color-bg-main)] border-2 border-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-colors text-[var(--color-text-primary)]"
@@ -144,8 +144,8 @@ export default function CalendarPage() {
                 </div>
                 <div>
                   <label className="text-xs font-medium text-[var(--color-text-secondary)] mb-1 block">Time (Optional)</label>
-                  <input 
-                    type="time" 
+                  <input
+                    type="time"
                     value={newTaskTime}
                     onChange={(e) => setNewTaskTime(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl bg-[var(--color-bg-main)] border-2 border-[var(--color-primary)]/20 focus:border-[var(--color-primary)] outline-none transition-colors text-[var(--color-text-primary)]"
@@ -181,7 +181,7 @@ export default function CalendarPage() {
           <h1 className="font-heading text-4xl text-[var(--color-text-heading)] mb-2">Calendar</h1>
           <p className="text-[var(--color-text-secondary)] font-sans">The big picture of your month.</p>
         </div>
-        
+
         <div className="flex items-center gap-4 bg-[var(--color-bg-card)] px-4 py-2 rounded-full shadow-[var(--shadow-skeuo-inset)] border border-[var(--color-primary)]/10">
           <button onClick={() => changeMonth(-1)} className="text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors"><ChevronLeft className="w-5 h-5" /></button>
           <span className="font-medium text-[var(--color-text-primary)] min-w-[150px] text-center text-lg">{monthNames[month]} {year}</span>
@@ -190,9 +190,9 @@ export default function CalendarPage() {
       </header>
 
       {/* Full Month Grid */}
-      <div className="flex-1 flex flex-col bg-[var(--color-bg-card)]/40 backdrop-blur-2xl rounded-3xl p-6 md:p-8 shadow-[inset_0_2px_20px_rgba(255,255,255,0.4),var(--shadow-skeuo)] border border-white/50 overflow-hidden relative">
+      <div className="flex-1 min-h-0 flex flex-col bg-[var(--color-bg-card)]/40 backdrop-blur-2xl rounded-3xl p-6 md:p-8 shadow-[inset_0_2px_20px_rgba(255,255,255,0.4),var(--shadow-skeuo)] border border-white/50 overflow-hidden relative">
         <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/5 via-transparent to-[var(--color-cadet-blue)]/10 pointer-events-none"></div>
-        
+
         {/* Days of Week Header */}
         <div className="grid grid-cols-7 mb-4">
           {dayNames.map(day => (
@@ -203,7 +203,10 @@ export default function CalendarPage() {
         </div>
 
         {/* Calendar Cells */}
-        <div className="flex-1 grid grid-cols-7 gap-3 md:gap-4 auto-rows-fr relative z-10">
+        <div 
+          className="flex-1 min-h-0 grid grid-cols-7 gap-2 md:gap-3 relative z-10"
+          style={{ gridTemplateRows: `repeat(${(totalCells + trailingPaddingDays.length) / 7}, minmax(0, 1fr))` }}
+        >
           {/* Leading padding */}
           {paddingDays.map(p => (
             <div key={`pad-start-${p}`} className="rounded-3xl bg-[var(--color-primary)]/5 border border-dashed border-[var(--color-primary)]/15 opacity-60 min-h-0 h-full"></div>
@@ -219,19 +222,19 @@ export default function CalendarPage() {
               <button 
                 key={day} 
                 onClick={() => handleDayClick(day)}
-                className={`relative flex flex-col p-2 md:p-3 min-h-0 h-full items-start justify-start rounded-3xl transition-all duration-150 ease-out text-left overflow-hidden group ${isToday ? 'bg-[var(--color-cream)] border-2 border-[var(--color-primary)]/40 shadow-[var(--shadow-skeuo),0_4px_20px_rgba(var(--color-primary-rgb),0.15)] scale-[1.02] z-20' : 'bg-[var(--color-bg-card)] shadow-sm border border-[var(--color-primary)]/10 hover:bg-white hover:shadow-[var(--shadow-skeuo)] hover:-translate-y-1 hover:border-[var(--color-primary)]/30'}`}
+                className={`relative flex flex-col p-1.5 md:p-2 min-h-0 h-full items-start justify-start rounded-2xl transition-all duration-150 ease-out text-left overflow-hidden group ${isToday ? 'bg-[var(--color-cream)] border-2 border-[var(--color-primary)]/40 shadow-[var(--shadow-skeuo),0_4px_20px_rgba(var(--color-primary-rgb),0.15)] scale-[1.02] z-20' : 'bg-[var(--color-bg-card)] shadow-sm border border-[var(--color-primary)]/10 hover:bg-white hover:shadow-[var(--shadow-skeuo)] hover:-translate-y-1 hover:border-[var(--color-primary)]/30'}`}
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 
-                <div className={`flex items-center justify-center w-8 h-8 rounded-full mb-2 ml-1 relative z-10 transition-colors ${isToday ? 'bg-[var(--color-primary)] text-white shadow-md' : 'text-[var(--color-text-primary)] group-hover:bg-[var(--color-primary)]/10'}`}>
-                  <span className={`text-sm ${isToday ? 'font-bold' : 'font-semibold'}`}>
+                <div className={`flex items-center justify-center w-6 h-6 rounded-full mb-1 ml-0.5 relative z-10 transition-colors ${isToday ? 'bg-[var(--color-primary)] text-white shadow-md' : 'text-[var(--color-text-primary)] group-hover:bg-[var(--color-primary)]/10'}`}>
+                  <span className={`text-xs ${isToday ? 'font-bold' : 'font-semibold'}`}>
                     {day}
                   </span>
                 </div>
 
                 {/* Task Indicators */}
-                <div className="flex flex-col gap-1.5 w-full mt-1 overflow-y-auto max-h-[80px] no-scrollbar relative z-10">
-                  {dayTasks.map((t, idx) => {
+                <div className="flex flex-col w-full mt-0 flex-1 min-h-0 overflow-hidden relative z-10">
+                  {dayTasks.slice(0, 2).map((t, idx) => {
                     let chipColor = 'bg-blue-500/90 text-white';
                     if (t.status === 'done') chipColor = 'bg-[var(--color-bg-main)] text-[var(--color-text-muted)] line-through border border-[var(--color-primary)]/10';
                     else if (t.priority === 'High') chipColor = 'bg-gradient-to-r from-red-500 to-rose-600 text-white shadow-md shadow-red-500/20';
@@ -239,11 +242,16 @@ export default function CalendarPage() {
                     else chipColor = 'bg-gradient-to-r from-[var(--color-primary)] to-emerald-500 text-white shadow-md shadow-[var(--color-primary)]/20';
 
                     return (
-                      <div key={idx} className={`text-[10px] truncate px-2 py-1 rounded-md font-medium ${chipColor}`}>
+                      <div key={idx} className={`text-[9px] truncate px-1.5 py-0.5 rounded md:rounded-md font-medium shrink-0 ${chipColor} mb-0.5`}>
                         {t.title}
                       </div>
                     );
                   })}
+                  {dayTasks.length > 2 && (
+                    <div className="text-[9px] text-[var(--color-text-secondary)] font-medium text-left w-full pl-1 mt-0 shrink-0">
+                      + {dayTasks.length - 2} more
+                    </div>
+                  )}
                 </div>
               </button>
             );

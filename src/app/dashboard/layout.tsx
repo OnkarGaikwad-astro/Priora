@@ -16,7 +16,9 @@ import {
   ArrowRight,
   Menu,
   X,
-  BrainCircuit
+  Sparkles,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -41,10 +43,11 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const { tasks, addTask, user, isLoading } = useAppContext();
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   // AI Panel Chat State
   const [aiInput, setAiInput] = useState("");
-  const [chatMessages, setChatMessages] = useState<{role: 'user'|'ai', text: string}[]>([]);
+  const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [isTyping, setIsTyping] = useState(false);
 
   // Auth Guard
@@ -70,7 +73,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
+          body: JSON.stringify({
             message: userText,
             currentDate: new Date().toISOString()
           })
@@ -141,7 +144,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       {/* Mobile Drawer Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -152,21 +155,21 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       </AnimatePresence>
 
       {/* Left Sidebar (Desktop + Mobile Drawer) */}
-      <aside className={`fixed md:static inset-y-0 left-0 w-64 bg-[var(--color-bg-sidebar)] border-r border-[var(--color-primary)]/40 flex flex-col justify-between py-6 shadow-[10px_0_20px_rgba(109,156,159,0.05)] z-50 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        <div>
-          <div className="px-8 mb-10 flex items-center justify-between">
+      <aside className={`fixed md:static inset-y-0 left-0 bg-[var(--color-bg-sidebar)] border-r border-[var(--color-primary)]/40 flex flex-col justify-between py-6 shadow-[10px_0_20px_rgba(109,156,159,0.05)] z-50 transform transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-64' : 'md:w-20 w-64'} ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="overflow-hidden">
+          <div className={`px-4 md:px-6 mb-10 flex items-center ${isSidebarOpen ? 'justify-between' : 'md:justify-center justify-between'}`}>
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 overflow-hidden flex items-center justify-center">
+              <div className="w-8 h-8 shrink-0 overflow-hidden flex items-center justify-center">
                 <Image src="/logo.svg" alt="Priora Logo" width={32} height={32} className="w-full h-full" />
               </div>
-              <span className="font-heading text-xl tracking-wide text-[var(--color-text-heading)]">Priora</span>
+              <span className={`font-heading text-xl tracking-wide text-[var(--color-text-heading)] transition-all duration-300 overflow-hidden whitespace-nowrap ${isSidebarOpen ? 'w-auto opacity-100' : 'md:w-0 md:opacity-0 w-auto opacity-100'}`}>Priora</span>
             </div>
             <button className="md:hidden text-[var(--color-text-muted)]" onClick={() => setIsMobileMenuOpen(false)}>
               <X className="w-5 h-5" />
             </button>
           </div>
 
-          <nav className="flex flex-col gap-2 px-4">
+          <nav className="flex flex-col gap-2 px-3 md:px-4">
             {NAV_ITEMS.map((item) => {
               const isActive = pathname === item.href;
               const Icon = item.icon;
@@ -175,11 +178,12 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                   key={item.href}
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 relative group
+                  title={!isSidebarOpen ? item.label : undefined}
+                  className={`flex items-center ${isSidebarOpen ? 'gap-3 px-4' : 'md:gap-0 md:px-0 md:justify-center gap-3 px-4'} py-3 rounded-2xl transition-all duration-300 relative group
                     ${isActive ? "text-[var(--color-text-primary)] font-semibold bg-[var(--color-cream)]/60 backdrop-blur-md shadow-[8px_8px_20px_rgba(0,0,0,0.15),-8px_-8px_20px_rgba(255,255,255,0.9)]" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-cadet-blue)]/10 hover:text-[var(--color-text-primary)]"}`}
                 >
-                  <Icon className="w-5 h-5" />
-                  <span>{item.label}</span>
+                  <Icon className="w-5 h-5 shrink-0" />
+                  <span className={`transition-all duration-300 overflow-hidden whitespace-nowrap ${isSidebarOpen ? 'w-auto opacity-100' : 'md:w-0 md:opacity-0 w-auto opacity-100'}`}>{item.label}</span>
                   {isActive && (
                     <motion.div
                       layoutId="sidebar-active"
@@ -192,15 +196,16 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
           </nav>
         </div>
 
-        <div className="px-4 flex flex-col gap-2">
-          <Link 
-            href="/dashboard/settings" 
-            onClick={() => setIsMobileMenuOpen(false)} 
-            className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 relative group
+        <div className="px-3 md:px-4 flex flex-col gap-2 overflow-hidden">
+          <Link
+            href="/dashboard/settings"
+            onClick={() => setIsMobileMenuOpen(false)}
+            title={!isSidebarOpen ? "Settings" : undefined}
+            className={`flex items-center ${isSidebarOpen ? 'gap-3 px-4' : 'md:gap-0 md:px-0 md:justify-center gap-3 px-4'} py-3 rounded-2xl transition-all duration-300 relative group
               ${pathname === '/dashboard/settings' ? "text-[var(--color-text-primary)] font-semibold bg-[var(--color-cream)]/60 backdrop-blur-md shadow-[8px_8px_20px_rgba(0,0,0,0.15),-8px_-8px_20px_rgba(255,255,255,0.9)]" : "text-[var(--color-text-secondary)] hover:bg-[var(--color-cadet-blue)]/10 hover:text-[var(--color-text-primary)]"}`}
           >
-            <Settings className="w-5 h-5" />
-            <span>Settings</span>
+            <Settings className="w-5 h-5 shrink-0" />
+            <span className={`transition-all duration-300 overflow-hidden whitespace-nowrap ${isSidebarOpen ? 'w-auto opacity-100' : 'md:w-0 md:opacity-0 w-auto opacity-100'}`}>Settings</span>
             {pathname === '/dashboard/settings' && (
               <motion.div
                 layoutId="sidebar-active"
@@ -208,23 +213,37 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
               />
             )}
           </Link>
-          <div className="flex items-center justify-between px-4 py-3 mt-2 border-t border-[var(--color-text-muted)]/10">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[var(--color-bg-elevated)] flex items-center justify-center shadow-[var(--shadow-skeuo-inset)] overflow-hidden">
+
+          {/* Collapse Toggle for Desktop */}
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="hidden md:flex items-center justify-center p-3 rounded-2xl border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 text-[var(--color-text-heading)] hover:bg-[var(--color-primary)] hover:text-[var(--color-accent)] transition-all"
+            title={isSidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
+          >
+            {isSidebarOpen ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+          </button>
+
+          <div className={`flex items-center ${isSidebarOpen ? 'justify-between px-4' : 'md:justify-center md:px-0 px-4 justify-between'} py-3 mt-2 border-t border-[var(--color-text-muted)]/10`}>
+            <div className="flex items-center gap-3 overflow-hidden">
+              <div className="w-8 h-8 shrink-0 rounded-full bg-[var(--color-bg-elevated)] flex items-center justify-center shadow-[var(--shadow-skeuo-inset)] overflow-hidden">
                 {user?.user_metadata?.avatar_url ? (
                   <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <User className="w-4 h-4 text-[var(--color-primary)]" />
+                  <User className="w-4 h-4 text-[var(--color-primary)] shrink-0" />
                 )}
               </div>
-              <div className="flex flex-col">
+              <div className={`flex flex-col transition-all duration-300 overflow-hidden whitespace-nowrap ${isSidebarOpen ? 'w-auto opacity-100' : 'md:w-0 md:opacity-0 w-auto opacity-100'}`}>
                 <span className="text-sm font-medium text-[var(--color-text-primary)] max-w-[100px] truncate">{user?.user_metadata?.full_name || 'Guest'}</span>
                 <span className="text-[10px] text-[var(--color-text-muted)] max-w-[100px] truncate">{user?.email || 'Local Mode'}</span>
               </div>
             </div>
             {isDbConnected() && user && (
-              <button onClick={handleLogout} className="text-[var(--color-text-muted)] hover:text-[var(--color-status-danger)] transition-colors p-1" title="Logout">
-                <LogOut className="w-4 h-4" />
+              <button
+                onClick={handleLogout}
+                className={`text-[var(--color-text-muted)] hover:text-[var(--color-status-danger)] transition-all overflow-hidden ${isSidebarOpen ? 'w-auto opacity-100 p-1' : 'md:w-0 md:opacity-0 md:p-0 w-auto opacity-100 p-1'}`}
+                title="Logout"
+              >
+                <LogOut className="w-4 h-4 shrink-0" />
               </button>
             )}
           </div>
@@ -237,17 +256,17 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* Floating Action Button for Priora AI */}
-      <button 
+      <button
         onClick={() => setIsAiOpen(!isAiOpen)}
         className="fixed bottom-6 md:bottom-8 right-6 md:right-8 w-14 h-14 bg-[var(--color-primary)] rounded-full shadow-[var(--shadow-skeuo)] hover:shadow-[var(--shadow-skeuo-hover)] active:shadow-[var(--shadow-skeuo-inset)] flex items-center justify-center text-[var(--color-accent)] z-[60] transition-all hover:-translate-y-1"
       >
-        <BrainCircuit className="w-6 h-6" />
+        <Sparkles className="w-6 h-6" />
       </button>
 
       {/* Floating AI Assistant Panel */}
       <AnimatePresence>
         {isAiOpen && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -258,14 +277,14 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 <X className="w-5 h-5" />
               </button>
               <div className="flex items-center gap-2 mb-1">
-                <BrainCircuit className="w-5 h-5 text-[var(--color-primary)]" />
+                <Sparkles className="w-5 h-5 text-[var(--color-primary)]" />
                 <h3 className="font-heading text-lg font-medium text-[var(--color-text-heading)]">Priora AI</h3>
               </div>
               <p className="text-xs text-[var(--color-text-muted)]">Active • Context Aware</p>
             </div>
 
             <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-6">
-              
+
               {/* Dynamic Content OR Chat Log */}
               {chatMessages.length === 0 ? (
                 <>
@@ -318,8 +337,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                   {isTyping && (
                     <div className="bg-[var(--color-bg-elevated)] text-[var(--color-text-muted)] self-start rounded-2xl p-3 text-sm shadow-[var(--shadow-skeuo-inset)] flex items-center gap-1">
                       <div className="w-2 h-2 bg-[var(--color-primary)]/50 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-[var(--color-primary)]/50 rounded-full animate-bounce" style={{animationDelay: "0.1s"}}></div>
-                      <div className="w-2 h-2 bg-[var(--color-primary)]/50 rounded-full animate-bounce" style={{animationDelay: "0.2s"}}></div>
+                      <div className="w-2 h-2 bg-[var(--color-primary)]/50 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+                      <div className="w-2 h-2 bg-[var(--color-primary)]/50 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
                     </div>
                   )}
                 </div>
@@ -328,7 +347,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
             <div className="p-4 bg-[var(--color-bg-sidebar)] shrink-0">
               <div className="bg-[var(--color-bg-elevated)] rounded-full px-4 py-3 shadow-[var(--shadow-skeuo-inset)] flex items-center gap-2">
-                <BrainCircuit className="w-4 h-4 text-[var(--color-primary)] shrink-0" />
+                <Sparkles className="w-4 h-4 text-[var(--color-primary)] shrink-0" />
                 <input
                   type="text"
                   placeholder="Ask Priora anything... (Press Enter)"

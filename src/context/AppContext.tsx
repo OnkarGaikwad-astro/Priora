@@ -23,6 +23,23 @@ export type Habit = {
   days: boolean[];
 };
 
+export type DailyStat = {
+  date: string;
+  focus_seconds: number;
+  productivity_score: number;
+  target_hours: number;
+};
+
+export type FocusState = {
+  isActive: boolean;
+  mode: "focus" | "break";
+  endTime: number | null;     // Epoch timestamp when timer should end
+  remainingTime: number;      // Seconds remaining (used when paused or initial)
+  focusMinutes: number;
+  breakMinutes: number;
+  selectedTaskId: number | null;
+};
+
 type AppContextType = {
   tasks: Task[];
   addTask: (task: Task) => void;
@@ -37,6 +54,17 @@ type AppContextType = {
   
   user: User | null;
   isLoading: boolean;
+  
+  focusState: FocusState;
+  updateFocusState: (newState: Partial<FocusState>) => void;
+  focusSecondsToday: number;
+  sessionFocusSeconds: number;
+  addFocusSeconds: (seconds: number) => void;
+  targetFocusHours: number;
+  setTargetFocusHours: (hours: number) => void;
+  
+  weeklyStats: DailyStat[];
+  prodScore: number;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -47,12 +75,101 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [focusState, setFocusState] = useState<FocusState>({
+    isActive: false,
+    mode: "focus",
+    endTime: null,
+    remainingTime: 25 * 60,
+    focusMinutes: 25,
+    breakMinutes: 5,
+    selectedTaskId: null,
+  });
+  const [focusSecondsToday, setFocusSecondsToday] = useState(0);
+  const [sessionFocusSeconds, setSessionFocusSeconds] = useState(0);
+  const [targetFocusHours, setTargetFocusHours] = useState(5);
+  const [weeklyStats, setWeeklyStats] = useState<DailyStat[]>([]);
+  const [currentDateString, setCurrentDateString] = useState(() => new Date().toISOString().split('T')[0]);
+
+  // Check for day change (midnight rollover)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const today = new Date().toISOString().split('T')[0];
+      if (today !== currentDateString) {
+        setCurrentDateString(today);
+        setFocusSecondsToday(0); // Reset for the new day
+      }
+    }, 10000); // Check every 10 seconds
+    return () => clearInterval(interval);
+  }, [currentDateString]);
+
+  // Calculate Productivity Score dynamically (x = ky + z)
+  // Focus Time: 60%, Tasks: 25%, Habits: 15%
+  const focusScore = targetFocusHours > 0 
+    ? Math.min(60, (focusSecondsToday / (targetFocusHours * 3600)) * 60)
+    : 0;
+    
+  const totalTasks = tasks.length;
+  const completedTasks = tasks.filter(t => t.status === "done").length;
+  const taskScore = totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 25;
+  
+  const totalHabits = habits.length;
+  // Checking day index 0 (Monday or Today depending on week start, standard proxy for daily completion)
+  const completedHabits = habits.filter(h => h.days && h.days[0]).length;
+  const habitScore = totalHabits === 0 ? 0 : (completedHabits / totalHabits) * 15;
+
+  const prodScore = Math.min(100, Math.round(focusScore + taskScore + habitScore));
+
+  const updateFocusState = (newState: Partial<FocusState>) => {
+    setFocusState(prev => ({ ...prev, ...newState }));
+  };
+
+  const addFocusSeconds = (seconds: number) => {
+    setFocusSecondsToday(prev => prev + seconds);
+    setSessionFocusSeconds(prev => prev + seconds);
+  };
+
   // 1. READ (Fetch from DB on mount)
   useEffect(() => {
     let subscription: any = null;
 
+    const fetchData = async (userId: string) => {
+      try {
+        const { data: tasksData, error: tasksError } = await supabase!.from('tasks').select('*');
+        if (!tasksError && tasksData) setTasks(tasksData);
+
+        const { data: habitsData, error: habitsError } = await supabase!.from('habits').select('*');
+        if (!habitsError && habitsData) setHabits(habitsData);
+
+        // Fetch daily stats for the last 7 days
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        const sevenDaysAgoString = sevenDaysAgo.toISOString().split('T')[0];
+        
+        const { data: statsData, error: statsError } = await supabase!
+          .from('daily_stats')
+          .select('*')
+          .gte('date', sevenDaysAgoString)
+          .order('date', { ascending: true });
+          
+        if (!statsError && statsData) {
+          setWeeklyStats(statsData);
+          const today = new Date().toISOString().split('T')[0];
+          const todayStat = statsData.find((s: any) => s.date === today);
+          if (todayStat) {
+            setFocusSecondsToday(todayStat.focus_seconds || 0);
+            setTargetFocusHours(todayStat.target_hours || 5);
+          } else if (statsData.length > 0) {
+            // Carry over yesterday's target hours
+            const lastStat = statsData[statsData.length - 1];
+            setTargetFocusHours(lastStat.target_hours || 5);
+          }
+        }
+      } catch (err) {
+        console.error("Supabase fetch failed.", err);
+      }
+    };
+
     if (isDbConnected() && supabase) {
-      // Set initial user
       supabase.auth.getSession().then(({ data: { session } }) => {
         setUser(session?.user ?? null);
         setIsLoading(false);
@@ -61,7 +178,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       });
 
-      // Listen for auth changes
       const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
         setUser(session?.user ?? null);
         setIsLoading(false);
@@ -73,21 +189,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
       });
       subscription = authListener.subscription;
-
-      const fetchData = async (userId: string) => {
-        try {
-          // If you enable RLS, Supabase handles filtering by user automatically based on the session token.
-          // But to be safe, we can add .eq('user_id', userId) if you have that column.
-          // We will rely on RLS or fetch all for now depending on DB schema.
-          const { data: tasksData, error: tasksError } = await supabase!.from('tasks').select('*');
-          if (!tasksError && tasksData) setTasks(tasksData);
-
-          const { data: habitsData, error: habitsError } = await supabase!.from('habits').select('*');
-          if (!habitsError && habitsData) setHabits(habitsData);
-        } catch (err) {
-          console.error("Supabase fetch failed.", err);
-        }
-      };
     } else {
       console.warn("Priora: Running in Local Mock Mode. Add Supabase keys to .env.local for Database Mode.");
       setIsLoading(false);
@@ -96,7 +197,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return () => {
       if (subscription) subscription.unsubscribe();
     };
-  }, []);
+  }, [currentDateString]); // Re-fetch if day changes
+
+  // Debounced Sync for Daily Stats
+  useEffect(() => {
+    if (!isDbConnected() || !supabase || !user) return;
+    if (isLoading) return; 
+
+    const timeout = setTimeout(async () => {
+      // Sync to the date the state currently belongs to
+      const { error } = await supabase!.from('daily_stats').upsert({
+        user_id: user.id,
+        date: currentDateString,
+        focus_seconds: focusSecondsToday,
+        target_hours: targetFocusHours,
+        productivity_score: prodScore
+      }, { onConflict: 'user_id, date' });
+      
+      if (error) {
+        console.error("Supabase upsert error (daily_stats):", error.message);
+      }
+    }, 2000);
+
+    return () => clearTimeout(timeout);
+  }, [focusSecondsToday, targetFocusHours, prodScore, user, isLoading, currentDateString]);
 
   // 2. CREATE
   const addTask = async (task: Task) => {
@@ -163,7 +287,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider value={{ 
       tasks, addTask, editTask, toggleTaskStatus, deleteTask,
       habits, addHabit, toggleHabitDay, deleteHabit,
-      user, isLoading
+      user, isLoading,
+      focusState, updateFocusState,
+      focusSecondsToday,
+      sessionFocusSeconds,
+      addFocusSeconds,
+      targetFocusHours, setTargetFocusHours,
+      weeklyStats, prodScore
     }}>
       {children}
     </AppContext.Provider>

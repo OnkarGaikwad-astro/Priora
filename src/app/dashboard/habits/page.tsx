@@ -57,10 +57,12 @@ export default function HabitsPage() {
         <div className="min-w-[600px]">
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-[var(--color-primary)]/20">
           <h3 className="font-semibold text-[var(--color-text-primary)] text-lg">Weekly Tracker</h3>
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
             {daysOfWeek.map((day, i) => (
               <div key={i} className="w-10 text-center font-medium text-[var(--color-text-muted)] text-sm">{day}</div>
             ))}
+            {/* Placeholder to match the delete button's width to keep columns aligned perfectly */}
+            <div className="w-6 ml-4"></div>
           </div>
         </div>
 
@@ -87,7 +89,7 @@ export default function HabitsPage() {
                     <Check className={`w-5 h-5 ${isDone ? 'opacity-100' : 'opacity-0 group-hover:opacity-30'}`} />
                   </button>
                 ))}
-                <button onClick={() => deleteHabit(habit.id)} className="ml-4 opacity-0 group-hover:opacity-100 transition-opacity text-[var(--color-text-muted)] hover:text-[var(--color-status-danger)]">
+                <button onClick={() => deleteHabit(habit.id)} className="w-6 ml-4 opacity-0 group-hover:opacity-100 transition-opacity flex justify-center text-[var(--color-text-muted)] hover:text-[var(--color-status-danger)]">
                   <Trash2 className="w-5 h-5" />
                 </button>
               </div>

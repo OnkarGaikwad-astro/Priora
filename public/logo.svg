@@ -1,4 +1,64 @@
-<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" rx="112" fill="#6D9C9F" />
-  <path d="M 140 330 L 256 190 L 372 330" fill="none" stroke="#F1F5E2" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" />
+<svg width="512" height="512" viewBox="-16 -16 544 544" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- 3D Glass Filter for Base Rectangle -->
+    <filter id="glassFilter" x="-50%" y="-50%" width="200%" height="200%">
+      <!-- 1. Drop Shadow for the whole shape -->
+      <feDropShadow in="SourceGraphic" dx="8" dy="16" stdDeviation="12" flood-color="#000" flood-opacity="0.25" result="baseWithShadow" />
+      
+      <!-- 2. Inner volume height map for lighting -->
+      <feGaussianBlur in="SourceAlpha" stdDeviation="24" result="blur" />
+      
+      <!-- 3. Specular Lighting (The glossy glass reflection on the surface) -->
+      <feSpecularLighting in="blur" surfaceScale="12" specularConstant="1.5" specularExponent="35" lighting-color="#ffffff" result="specOut">
+        <!-- Light source positioned top-left -->
+        <fePointLight x="-100" y="-100" z="400" />
+      </feSpecularLighting>
+      
+      <!-- Mask specular lighting to stay strictly within the rounded rect -->
+      <feComposite in="specOut" in2="SourceAlpha" operator="in" result="specOutMasked" />
+      
+      <!-- 4. Inner Shadow (creates volumetric depth on the bottom right) -->
+      <feOffset in="blur" dx="16" dy="24" result="offsetBlur"/>
+      <feComposite in="SourceAlpha" in2="offsetBlur" operator="out" result="inverse"/>
+      <feFlood flood-color="#000" flood-opacity="0.35" result="shadowColor"/>
+      <feComposite in="shadowColor" in2="inverse" operator="in" result="innerShadow"/>
+      <feComposite in="innerShadow" in2="SourceAlpha" operator="in" result="innerShadowMasked"/>
+
+      <!-- 5. Inner Bevel Light (creates a bright glass rim on the top left) -->
+      <feOffset in="blur" dx="-12" dy="-16" result="offsetBlurLight"/>
+      <feComposite in="SourceAlpha" in2="offsetBlurLight" operator="out" result="inverseLight"/>
+      <feFlood flood-color="#fff" flood-opacity="0.7" result="lightColor"/>
+      <feComposite in="lightColor" in2="inverseLight" operator="in" result="innerLight"/>
+      <feComposite in="innerLight" in2="SourceAlpha" operator="in" result="innerLightMasked"/>
+      
+      <!-- 6. Composite everything together -->
+      <feMerge>
+        <feMergeNode in="baseWithShadow" />
+        <feMergeNode in="innerShadowMasked" />
+        <feMergeNode in="innerLightMasked" />
+        <feMergeNode in="specOutMasked" />
+      </feMerge>
+    </filter>
+
+    <!-- 3D Filter for Chevron (etched / floating effect) -->
+    <filter id="chevronFilter" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="4" dy="8" stdDeviation="6" flood-color="#000" flood-opacity="0.3" result="drop" />
+      <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="blur2" />
+      <feSpecularLighting in="blur2" surfaceScale="4" specularConstant="1.2" specularExponent="15" lighting-color="#fff" result="spec2">
+        <fePointLight x="0" y="0" z="200" />
+      </feSpecularLighting>
+      <feComposite in="spec2" in2="SourceAlpha" operator="in" result="spec2Masked" />
+      <feMerge>
+        <feMergeNode in="drop" />
+        <feMergeNode in="SourceGraphic" />
+        <feMergeNode in="spec2Masked" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Original Base Rect Color elevated entirely by mathematical lighting filters -->
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="#6D9C9F" filter="url(#glassFilter)" />
+  
+  <!-- Original Chevron Color elevated by filters -->
+  <path d="M 148 330 L 256 190 L 364 330" fill="none" stroke="#F1F5E2" stroke-width="72" stroke-linecap="round" stroke-linejoin="round" filter="url(#chevronFilter)" />
 </svg>
