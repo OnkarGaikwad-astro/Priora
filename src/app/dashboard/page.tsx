@@ -609,7 +609,7 @@ export default function DashboardPage() {
                     }}
                     itemStyle={{ color: '#4A5D70' }}
                     labelFormatter={(val) => new Date(val as string).toLocaleDateString('en-US', {timeZone: 'UTC'})}
-                    formatter={(value: number) => [`${value} hrs`, 'Focused Time']}
+                    formatter={(value: any) => [`${value} hrs`, 'Focused Time']}
                   />
                   <Line 
                     type="monotone" 
