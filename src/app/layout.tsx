@@ -13,8 +13,23 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://priora.astronkar.in'),
   title: "Priora | Finish Before It's Urgent",
   description: "The luxury AI Productivity Operating System.",
+  keywords: ["productivity", "AI", "operating system", "task management", "Priora", "luxury software"],
+  authors: [{ name: "Priora Team" }],
+  openGraph: {
+    title: "Priora | Finish Before It's Urgent",
+    description: "The luxury AI Productivity Operating System.",
+    url: "/",
+    siteName: "Priora",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Priora | Finish Before It's Urgent",
+    description: "The luxury AI Productivity Operating System.",
+  },
 };
 import Script from "next/script";
 
