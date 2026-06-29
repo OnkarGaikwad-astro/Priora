@@ -30,6 +30,9 @@ export const metadata: Metadata = {
     title: "Priora | Finish Before It's Urgent",
     description: "The luxury AI Productivity Operating System.",
   },
+  verification: {
+    google: "YOUR_GOOGLE_SEARCH_CONSOLE_VERIFICATION_CODE", // Replace this!
+  },
 };
 import Script from "next/script";
 
