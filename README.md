@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/ai-icon.png" alt="Priora Logo" width="120" />
+  <img src="public/logo.svg" alt="Priora Logo" width="120" />
   <h1>🚀 Priora: The Last-Minute Life Saver</h1>
   
   <p><strong>An Autonomous, Voice-Enabled AI Productivity Ecosystem</strong></p>
