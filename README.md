@@ -1,7 +1,13 @@
-# 🚀 Priora: The Last-Minute Life Saver
-
 <div align="center">
+  <img src="public/ai-icon.png" alt="Priora Logo" width="120" />
+  <h1>🚀 Priora: The Last-Minute Life Saver</h1>
+  
   <p><strong>An Autonomous, Voice-Enabled AI Productivity Ecosystem</strong></p>
+
+  <a href="https://priora.astronkar.in">
+    <img src="https://img.shields.io/badge/🔴_Live_Demo-priora.astronkar.in-ED8936?style=for-the-badge&logo=vercel" alt="Live Demo" />
+  </a>
+  <br/><br/>
 </div>
 
 ## 🌟 The Challenge
@@ -38,4 +44,6 @@ To bridge the gap between planning and execution, Priora introduces **Focus Mode
 5. Open `http://localhost:3000`
 
 ---
-*Built with ❤️ for the Hackathon.*
+<div align="center">
+  <i>Built with ❤️ for the Hackathon.</i>
+</div>
