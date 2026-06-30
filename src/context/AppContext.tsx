@@ -93,7 +93,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [focusSecondsToday, setFocusSecondsToday] = useState(0);
   const [sessionFocusSeconds, setSessionFocusSeconds] = useState(0);
   const [targetFocusHours, setTargetFocusHours] = useState(5);
-  const [focusBgImage, setFocusBgImage] = useState("/watercolor_bg.png");
+  const [focusBgImage, setFocusBgImage] = useState("space_animation");
   const [focusBgMusic, setFocusBgMusic] = useState("bgIBFEtJQv4");
   const [weeklyStats, setWeeklyStats] = useState<DailyStat[]>([]);
   const [currentDateString, setCurrentDateString] = useState(() => new Date().toISOString().split('T')[0]);
