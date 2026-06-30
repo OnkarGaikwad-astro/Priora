@@ -18,7 +18,9 @@ import {
   X,
   Sparkles,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Bot,
+  BrainCircuit
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -26,6 +28,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { AppProvider, useAppContext } from "@/context/AppContext";
 import { supabase, isDbConnected } from "@/lib/supabase";
 import { Loader2, LogOut } from "lucide-react";
+import SpaceAnimation from "@/components/SpaceAnimation";
 
 const NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -40,7 +43,7 @@ const NAV_ITEMS = [
 function DashboardContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { tasks, addTask, user, isLoading } = useAppContext();
+  const { tasks, addTask, user, isLoading, focusState, focusBgImage } = useAppContext();
   const [isAiOpen, setIsAiOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -128,6 +131,31 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-screen bg-[var(--color-bg-main)] overflow-hidden font-sans relative">
+
+      {/* Ambient Background - Only visible when Focus Mode timer is active */}
+      <AnimatePresence>
+        {focusState?.isActive && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0 overflow-hidden pointer-events-none z-0 bg-black"
+          >
+            {focusBgImage === 'space_animation' ? (
+              <SpaceAnimation />
+            ) : (
+              <motion.img
+                src={focusBgImage || "/watercolor_bg.png"}
+                alt="Focus Nature Background"
+                animate={{ scale: [1.02, 1.05, 1.02], x: [0, -10, 0], y: [0, -5, 0] }}
+                transition={{ duration: 80, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-0 w-full h-full object-cover contrast-125 brightness-90"
+              />
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Mobile Header */}
       <div className="md:hidden absolute top-0 left-0 right-0 h-16 bg-[var(--color-bg-sidebar)] border-b border-[var(--color-primary)]/20 z-40 flex items-center justify-between px-6 shadow-sm">
         <div className="flex items-center gap-2">
@@ -154,8 +182,8 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         )}
       </AnimatePresence>
 
-      {/* Left Sidebar (Desktop + Mobile Drawer) */}
-      <aside className={`fixed md:static inset-y-0 left-0 bg-[var(--color-bg-sidebar)] border-r border-[var(--color-primary)]/40 flex flex-col justify-between py-6 shadow-[10px_0_20px_rgba(109,156,159,0.05)] z-50 transform transition-all duration-300 ease-in-out ${isSidebarOpen ? 'w-64' : 'md:w-20 w-64'} ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+      {/* Left Sidebar (Desktop + Mobile Drawer) - Smoothly hides in active focus mode */}
+      <aside className={`fixed md:static inset-y-0 left-0 bg-[var(--color-bg-sidebar)] border-r border-[var(--color-primary)]/40 flex flex-col justify-between shadow-[10px_0_20px_rgba(109,156,159,0.05)] z-50 transform transition-all duration-500 ease-in-out ${focusState?.isActive ? 'w-0 opacity-0 overflow-hidden px-0 py-0 border-none' : `py-6 ${isSidebarOpen ? 'w-64' : 'md:w-20 w-64'} ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}`}>
         <div className="overflow-hidden">
           <div className={`px-4 md:px-6 mb-10 flex items-center ${isSidebarOpen ? 'justify-between' : 'md:justify-center justify-between'}`}>
             <div className="flex items-center gap-3">
@@ -255,13 +283,15 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
         {children}
       </main>
 
-      {/* Floating Action Button for Priora AI */}
-      <button
-        onClick={() => setIsAiOpen(!isAiOpen)}
-        className="fixed bottom-6 md:bottom-8 right-6 md:right-8 w-14 h-14 bg-[var(--color-primary)] rounded-full shadow-[var(--shadow-skeuo)] hover:shadow-[var(--shadow-skeuo-hover)] active:shadow-[var(--shadow-skeuo-inset)] flex items-center justify-center text-[var(--color-accent)] z-[60] transition-all hover:-translate-y-1"
-      >
-        <Sparkles className="w-6 h-6" />
-      </button>
+      {/* Floating Action Button for Priora AI - Hidden in active focus mode */}
+      {!focusState?.isActive && (
+        <button
+          onClick={() => setIsAiOpen(!isAiOpen)}
+          className="fixed bottom-6 md:bottom-8 right-6 md:right-8 w-14 h-14 bg-[var(--color-primary)] rounded-full shadow-[var(--shadow-skeuo)] hover:shadow-[var(--shadow-skeuo-hover)] active:shadow-[var(--shadow-skeuo-inset)] flex items-center justify-center text-[var(--color-accent)] z-[60] transition-all hover:-translate-y-1"
+        >
+          <Image src="/ai-icon-solid.png" alt="Priora AI" width={24} height={24} className="w-7 h-7 object-contain drop-shadow-sm filter brightness-0 invert" />
+        </button>
+      )}
 
       {/* Floating AI Assistant Panel */}
       <AnimatePresence>
@@ -277,7 +307,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 <X className="w-5 h-5" />
               </button>
               <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="w-5 h-5 text-[var(--color-primary)]" />
+                <Image src="/ai-icon-solid.png" alt="Priora AI" width={20} height={20} className="w-5 h-5 object-contain" />
                 <h3 className="font-heading text-lg font-medium text-[var(--color-text-heading)]">Priora AI</h3>
               </div>
               <p className="text-xs text-[var(--color-text-muted)]">Active • Context Aware</p>

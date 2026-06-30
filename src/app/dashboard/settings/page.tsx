@@ -7,7 +7,7 @@ import { isDbConnected } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function SettingsPage() {
-  const { tasks, deleteTask } = useAppContext();
+  const { tasks, deleteTask, focusBgImage, setFocusBgImage } = useAppContext();
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   
   // Local Settings State
@@ -147,6 +147,52 @@ export default function SettingsPage() {
                 <option value="45">45 Minutes (Deep Work)</option>
                 <option value="60">60 Minutes (Marathon)</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-4">Focus Mode Background Image</label>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-4">
+                {[
+                  { name: "Your Image", url: "/watercolor_bg.png", thumb: "/watercolor_bg.png" },
+                  { name: "Animated Space", url: "space_animation", thumb: "https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2011&auto=format&fit=crop" },
+                  { name: "Dark Mountains", url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop", thumb: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop" },
+                  { name: "Serene Lake", url: "https://images.unsplash.com/photo-1439853949127-fa647821eba0?q=80&w=1974&auto=format&fit=crop", thumb: "https://images.unsplash.com/photo-1439853949127-fa647821eba0?q=80&w=1974&auto=format&fit=crop" },
+                  { name: "Deep Space", url: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?q=80&w=2070&auto=format&fit=crop", thumb: "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?q=80&w=2070&auto=format&fit=crop" },
+                  { name: "Minimalist Dune", url: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=2041&auto=format&fit=crop", thumb: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?q=80&w=2041&auto=format&fit=crop" }
+                ].map((preset) => (
+                  <button
+                    key={preset.name}
+                    onClick={() => {
+                      setFocusBgImage(preset.url);
+                      localStorage.setItem("priora_focus_bg", preset.url);
+                      showToast(`${preset.name} selected!`);
+                    }}
+                    className={`relative aspect-video rounded-xl overflow-hidden border-2 transition-all shadow-[var(--shadow-skeuo)] ${focusBgImage === preset.url ? 'border-[var(--color-primary)] scale-105' : 'border-transparent hover:border-white/40'}`}
+                    title={preset.name}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={preset.thumb} alt={preset.name} className="w-full h-full object-cover" />
+                    {focusBgImage === preset.url && (
+                      <div className="absolute inset-0 bg-[var(--color-primary)]/20 flex items-center justify-center">
+                        <CheckCircle2 className="w-6 h-6 text-white drop-shadow-md" />
+                      </div>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              <input 
+                type="text"
+                placeholder="Or paste a custom Image URL (e.g. from Unsplash)..."
+                value={focusBgImage}
+                onChange={(e) => {
+                  setFocusBgImage(e.target.value);
+                  localStorage.setItem("priora_focus_bg", e.target.value);
+                  showToast("Background image updated!");
+                }}
+                className="w-full px-4 py-3 rounded-xl bg-[var(--color-bg-card)] shadow-[var(--shadow-skeuo-inset)] border-none outline-none text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)]"
+              />
             </div>
           </div>
         </div>
