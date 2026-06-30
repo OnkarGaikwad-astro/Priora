@@ -20,7 +20,10 @@ import {
   ChevronLeft,
   ChevronRight,
   Bot,
-  BrainCircuit
+  BrainCircuit,
+  Mic,
+  MicOff,
+  Send
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -52,6 +55,41 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const [aiInput, setAiInput] = useState("");
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'ai', text: string }[]>([]);
   const [isTyping, setIsTyping] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+
+  const toggleVoiceInput = () => {
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Your browser does not support Voice Input.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => setIsListening(true);
+    
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setAiInput(transcript);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error", event.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+  };
 
   // Auth Guard
   useEffect(() => {
@@ -65,46 +103,63 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   const inProgressTask = tasks.find(t => t.status === "in-progress");
   const topTask = inProgressTask || tasks.find(t => t.status !== "done") || null;
 
-  const handleAiSubmit = async (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && aiInput.trim() && !isTyping) {
-      const userText = aiInput.trim();
-      setChatMessages(prev => [...prev, { role: 'user', text: userText }]);
-      setAiInput("");
-      setIsTyping(true);
+  const submitMessage = async (userText: string) => {
+    if (!userText.trim() || isTyping) return;
+    
+    setChatMessages(prev => [...prev, { role: 'user', text: userText }]);
+    setAiInput("");
+    setIsTyping(true);
 
-      try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            message: userText,
-            currentDate: new Date().toISOString()
-          })
-        });
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userText,
+          currentDate: new Date().toISOString()
+        })
+      });
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data.action === "create_task" && data.task) {
-            addTask({
-              id: Date.now(),
-              title: data.task.title,
-              status: "todo",
-              category: data.task.category || "General",
-              est: data.task.est || "Est. 1h",
-              priority: data.task.priority || "Medium",
-              isCritical: data.task.isCritical || false,
-              deadline: data.task.deadline
-            });
-          }
-          setChatMessages(prev => [...prev, { role: 'ai', text: data.response }]);
-        } else {
-          setChatMessages(prev => [...prev, { role: 'ai', text: "I'm having trouble connecting to my logic center right now." }]);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.action === "create_task" && data.task) {
+          addTask({
+            id: Date.now(),
+            title: data.task.title,
+            status: "todo",
+            category: data.task.category || "General",
+            est: data.task.est || "Est. 1h",
+            priority: data.task.priority || "Medium",
+            isCritical: data.task.isCritical || false,
+            deadline: data.task.deadline
+          });
         }
-      } catch (error) {
-        setChatMessages(prev => [...prev, { role: 'ai', text: "An error occurred while processing your request." }]);
-      } finally {
-        setIsTyping(false);
+        
+        const aiResponseText = data.response || "Task processed.";
+        setChatMessages(prev => [...prev, { role: 'ai', text: aiResponseText }]);
+        
+        // Text-to-Speech for Voice Assistant feel
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel(); // Stop any ongoing speech
+          const utterance = new SpeechSynthesisUtterance(aiResponseText);
+          utterance.rate = 1.05;
+          utterance.pitch = 1.1;
+          window.speechSynthesis.speak(utterance);
+        }
+        
+      } else {
+        setChatMessages(prev => [...prev, { role: 'ai', text: "I'm having trouble connecting to my logic center right now." }]);
       }
+    } catch (error) {
+      console.error(error);
+      setChatMessages(prev => [...prev, { role: 'ai', text: "Oops, my circuits got tangled." }]);
+    }
+    setIsTyping(false);
+  };
+
+  const handleAiSubmit = async (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      submitMessage(aiInput);
     }
   };
 
@@ -386,6 +441,21 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                   onKeyDown={handleAiSubmit}
                   className="bg-transparent border-none outline-none text-sm w-full text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)]"
                 />
+                <button 
+                  onClick={toggleVoiceInput}
+                  className={`p-1.5 shrink-0 rounded-full transition-all ${isListening ? 'bg-[var(--color-status-danger)] text-white shadow-[0_0_10px_var(--color-status-danger)] animate-pulse' : 'text-[var(--color-text-muted)] hover:bg-[var(--color-primary)]/10 hover:text-[var(--color-primary)]'}`}
+                  title={isListening ? "Listening..." : "Click to speak"}
+                >
+                  <Mic className="w-4 h-4" />
+                </button>
+                <button 
+                  onClick={() => submitMessage(aiInput)}
+                  disabled={!aiInput.trim() || isTyping}
+                  className="p-1.5 shrink-0 rounded-full text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  title="Send message"
+                >
+                  <Send className="w-4 h-4" />
+                </button>
               </div>
             </div>
           </motion.div>

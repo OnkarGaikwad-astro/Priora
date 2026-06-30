@@ -6,7 +6,7 @@ import { useAppContext } from "@/context/AppContext";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function FocusPage() {
-  const { tasks, focusState, updateFocusState, addFocusSeconds } = useAppContext();
+  const { tasks, focusState, updateFocusState, addFocusSeconds, focusBgImage, focusBgMusic } = useAppContext();
 
   const [localTimeLeft, setLocalTimeLeft] = useState(focusState.remainingTime);
 
@@ -426,7 +426,7 @@ export default function FocusPage() {
               ref={iframeRef}
               width="100%"
               height="100%"
-              src="https://www.youtube.com/embed/bgIBFEtJQv4?enablejsapi=1&rel=0&controls=0&start=15"
+              src={`https://www.youtube.com/embed/${focusBgMusic || 'aBRmSdIcgOs'}?enablejsapi=1&rel=0&controls=0&start=15&vq=tiny`}
               title="Ambient Focus Space"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

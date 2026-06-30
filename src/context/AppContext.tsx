@@ -66,6 +66,9 @@ type AppContextType = {
   focusBgImage: string;
   setFocusBgImage: (url: string) => void;
 
+  focusBgMusic: string;
+  setFocusBgMusic: (url: string) => void;
+
   weeklyStats: DailyStat[];
   prodScore: number;
 };
@@ -91,6 +94,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [sessionFocusSeconds, setSessionFocusSeconds] = useState(0);
   const [targetFocusHours, setTargetFocusHours] = useState(5);
   const [focusBgImage, setFocusBgImage] = useState("/watercolor_bg.png");
+  const [focusBgMusic, setFocusBgMusic] = useState("bgIBFEtJQv4");
   const [weeklyStats, setWeeklyStats] = useState<DailyStat[]>([]);
   const [currentDateString, setCurrentDateString] = useState(() => new Date().toISOString().split('T')[0]);
 
@@ -98,6 +102,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const savedBg = localStorage.getItem("priora_focus_bg");
     if (savedBg) setFocusBgImage(savedBg);
+
+    const savedMusic = localStorage.getItem("priora_focus_music");
+    if (savedMusic) setFocusBgMusic(savedMusic);
   }, []);
 
   // Check for day change (midnight rollover)
@@ -304,6 +311,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addFocusSeconds,
       targetFocusHours, setTargetFocusHours,
       focusBgImage, setFocusBgImage,
+      focusBgMusic, setFocusBgMusic,
       weeklyStats, prodScore
     }}>
       {children}

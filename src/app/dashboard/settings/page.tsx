@@ -7,7 +7,7 @@ import { isDbConnected } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function SettingsPage() {
-  const { tasks, deleteTask, focusBgImage, setFocusBgImage } = useAppContext();
+  const { tasks, deleteTask, focusBgImage, setFocusBgImage, focusBgMusic, setFocusBgMusic } = useAppContext();
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   
   // Local Settings State
@@ -146,6 +146,25 @@ export default function SettingsPage() {
                 <option value="25">25 Minutes (Standard Pomodoro)</option>
                 <option value="45">45 Minutes (Deep Work)</option>
                 <option value="60">60 Minutes (Marathon)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-[var(--color-text-primary)] mb-2">Background Ambient Music</label>
+              <select 
+                value={focusBgMusic}
+                onChange={(e) => {
+                  setFocusBgMusic(e.target.value);
+                  localStorage.setItem("priora_focus_music", e.target.value);
+                  showToast("Background music saved!");
+                }}
+                className="w-full md:w-1/2 px-4 py-3 rounded-xl bg-[var(--color-bg-card)] shadow-[var(--shadow-skeuo-inset)] border-none outline-none text-[var(--color-text-primary)]"
+              >
+                <option value="bgIBFEtJQv4">Shire (LOTR) Ambience</option>
+                <option value="aBRmSdIcgOs">Way of Life</option>
+                <option value="p8ov9f8NISk">Pandora at Night (Avatar)</option>
+                <option value="5gO0xpY_Y3E">Interstellar</option>
+                <option value="rPt79QYxXEc">Harry Potter Ambience</option>
               </select>
             </div>
 

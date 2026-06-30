@@ -8,17 +8,19 @@ export async function POST(req: Request) {
   try {
     const { tasks, targetFocusHours, currentDate } = await req.json();
 
+    const pendingTasks = tasks.filter((t: any) => t.status !== "done");
+
     if (!genAI) {
+      const half = Math.ceil(pendingTasks.length / 2);
       return NextResponse.json({ 
         summary: "I'm running in Local Mock Mode right now. Add a Gemini API key to your .env.local file to generate an AI plan!",
-        suggestedOrder: tasks.map((t: any) => t.id)
+        morning: pendingTasks.slice(0, half).map((t: any) => t.id),
+        afternoon: pendingTasks.slice(half).map((t: any) => t.id),
+        evening: []
       });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
-
-    // Filter out completed tasks so the AI only plans for what's left
-    const pendingTasks = tasks.filter((t: any) => t.status !== "done");
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     if (pendingTasks.length === 0) {
       return NextResponse.json({
@@ -36,13 +38,19 @@ export async function POST(req: Request) {
       Here are the pending tasks (in JSON format):
       ${JSON.stringify(pendingTasks)}
 
-      Your job is to analyze these tasks (looking at priority, isCritical, and deadline) and determine the optimal order they should tackle them in today.
+      Your job is to analyze these tasks (looking at priority, isCritical, and deadline) and distribute them intelligently across Morning, Afternoon, and Evening blocks based on urgency and typical energy levels.
       
       You MUST return a JSON object with this exact structure:
       {
         "summary": "A highly motivational and concise summary of the plan (2-3 sentences max). Acknowledge their target focus hours if relevant.",
-        "suggestedOrder": [ 
-          // An array of the task IDs in the exact order you suggest they tackle them. MUST be numbers.
+        "morning": [ 
+          // An array of the task IDs you suggest they tackle in the morning block. MUST be numbers.
+        ],
+        "afternoon": [ 
+          // An array of the task IDs for the afternoon block. MUST be numbers.
+        ],
+        "evening": [ 
+          // An array of the task IDs for the evening block. MUST be numbers.
         ]
       }
 
@@ -55,8 +63,10 @@ export async function POST(req: Request) {
     const parsed = JSON.parse(cleanedJson);
 
     // Fallback if AI didn't return an array for some reason
-    if (!Array.isArray(parsed.suggestedOrder)) {
-      parsed.suggestedOrder = pendingTasks.map((t: any) => t.id);
+    if (!Array.isArray(parsed.morning)) {
+      parsed.morning = pendingTasks.map((t: any) => t.id);
+      parsed.afternoon = [];
+      parsed.evening = [];
     }
 
     return NextResponse.json(parsed);
@@ -64,7 +74,9 @@ export async function POST(req: Request) {
     console.error('Error in Plan API route:', error);
     return NextResponse.json({ 
       summary: "Oops, my circuits got tangled while trying to generate a plan. Just tackle the most urgent task first!",
-      suggestedOrder: []
+      morning: [],
+      afternoon: [],
+      evening: []
     }, { status: 500 });
   }
 }
