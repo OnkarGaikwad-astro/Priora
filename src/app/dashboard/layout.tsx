@@ -187,8 +187,16 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen bg-[var(--color-bg-main)] overflow-hidden font-sans relative">
 
-      {/* Ambient Background - Always visible */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0 bg-black">
+      {/* Ambient Background - Only visible when Focus Mode timer is active and on the focus page */}
+      <AnimatePresence>
+        {focusState?.isActive && pathname === '/dashboard/focus' && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0 overflow-hidden pointer-events-none z-0 bg-black"
+          >
         {focusBgImage === 'space_animation' ? (
           <SpaceAnimation />
         ) : (
@@ -200,7 +208,9 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             className="absolute inset-0 w-full h-full object-cover contrast-125 brightness-90"
           />
         )}
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       {/* Mobile Header */}
       <div className="md:hidden absolute top-0 left-0 right-0 h-16 bg-[var(--color-bg-sidebar)] border-b border-[var(--color-primary)]/20 z-40 flex items-center justify-between px-6 shadow-sm">
         <div className="flex items-center gap-2">
